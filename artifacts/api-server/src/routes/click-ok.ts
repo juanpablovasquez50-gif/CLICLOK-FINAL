@@ -234,16 +234,28 @@ router.get("/click-ok/businesses", async (req, res): Promise<void> => {
     return;
   }
 
+  // Resolve workspaces through the signed-in user's active memberships.
+  // This makes the ownership relationship explicit and avoids relying on a
+  // broad businesses-table listing to discover the current user's workspace.
   const { data, error } = await auth.client
-    .from("businesses")
-    .select("id,name,slug,currency,created_at")
-    .order("created_at", { ascending: true });
+    .from("memberships")
+    .select("business:businesses!inner(id,name,slug,currency,created_at)")
+    .eq("active", true)
+    .order("created_at", { foreignTable: "businesses", ascending: true });
 
   if (error) {
-    respondWithDatabaseError(req, res, error, "list-businesses");
+    respondWithDatabaseError(req, res, error, "list-businesses-by-membership");
     return;
   }
-  res.json(ListBusinessesResponse.parse((data ?? []).map(mapBusiness)));
+
+  const businesses = (data ?? []).flatMap((membership) => {
+    const related = membership.business;
+    const row = Array.isArray(related) ? related[0] : related;
+    if (!row || typeof row.id !== "string") return [];
+    return [mapBusiness(row as BusinessRow)];
+  });
+
+  res.json(ListBusinessesResponse.parse(businesses));
 });
 
 router.post("/click-ok/businesses", async (req, res): Promise<void> => {
