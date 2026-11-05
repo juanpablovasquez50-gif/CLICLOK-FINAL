@@ -1,0 +1,627 @@
+PROMPT MAESTRO — CLICK OK SaaS
+
+Construcción desde cero | Versión final de producción
+
+Empresa propietaria: ATOM LABS
+
+Actúa como un equipo senior de desarrollo de software especializado en arquitectura SaaS, React, TypeScript, Supabase, PostgreSQL, seguridad, UX/UI y sistemas de gestión para restaurantes.
+
+Tu misión es construir desde cero CLICK OK, un SaaS profesional de Atom Labs para la gestión digital y operativa de restaurantes.
+
+El objetivo es entregar una plataforma comercial completa, funcional, escalable, segura y preparada para producción.
+
+IMPORTANTE: Este proyecto comienza desde cero. No busques, importes, reutilices ni dependas de repositorios, proyectos o archivos anteriores. Construye toda la aplicación, su arquitectura, sus componentes, su base de datos y sus funcionalidades.
+
+No quiero una demostración, una plantilla, un prototipo ni una interfaz con botones decorativos.
+
+1. IDENTIDAD Y MARCA
+
+Producto: CLICK OK.
+Empresa propietaria: ATOM LABS.
+
+CLICK OK es una plataforma SaaS para que restaurantes puedan crear su presencia digital, administrar sus productos, recibir pedidos y gestionar su operación desde un mismo sistema.
+
+Diseña una identidad visual profesional, moderna, limpia y comercial.
+
+La aplicación debe funcionar perfectamente en computadores, tablets y teléfonos móviles.
+
+Toda la plataforma debe mantener coherencia visual y utilizar exclusivamente el nombre CLICK OK.
+
+2. LANDING PAGE PÚBLICA
+
+Construye una landing page comercial completa que incluya:
+
+* Página de inicio.
+* Presentación del producto.
+* Beneficios principales.
+* Funcionalidades.
+* Cómo funciona.
+* Planes y precios administrables.
+* Preguntas frecuentes.
+* Información de Atom Labs.
+* Botones de registro e inicio de sesión.
+* Llamados a la acción.
+* Diseño responsive.
+* Metadatos SEO.
+* Favicon.
+
+Los precios, planes, beneficios y textos comerciales deben poder administrarse desde el Superadministrador.
+
+Todos los botones deben tener acciones reales.
+
+3. ARQUITECTURA SAAS MULTIEMPRESA
+
+Construye una arquitectura multi-tenant real.
+
+Cada restaurante tendrá su propio espacio independiente.
+
+Garantizar:
+
+* Separación total de información entre restaurantes.
+* Identificador único para cada negocio.
+* Usuarios asociados a uno o varios negocios según permisos.
+* Configuración independiente.
+* Catálogos independientes.
+* Pedidos independientes.
+* Clientes independientes.
+* Productos independientes.
+* Estadísticas independientes.
+* Suscripciones independientes.
+
+Implementar aislamiento mediante PostgreSQL y políticas RLS de Supabase.
+
+Ningún restaurante podrá consultar, modificar o eliminar información de otro negocio.
+
+La seguridad debe validarse en el servidor y en la base de datos.
+
+4. SUPERADMINISTRADOR DE ATOM LABS
+
+Crear un panel administrativo central, separado de los restaurantes.
+
+Funciones:
+
+* Consultar todos los restaurantes registrados.
+* Crear, editar, suspender y activar negocios.
+* Consultar usuarios y membresías.
+* Administrar planes.
+* Crear y modificar suscripciones.
+* Consultar pagos y vencimientos.
+* Activar o desactivar módulos por plan.
+* Consultar estadísticas generales.
+* Consultar actividad de la plataforma.
+* Gestionar configuraciones generales.
+* Consultar registros de auditoría.
+* Administrar precios y características comerciales.
+* Gestionar solicitudes de soporte.
+
+El Superadministrador tendrá permisos exclusivos y protección especial.
+
+5. REGISTRO Y AUTENTICACIÓN
+
+Implementar autenticación real con Supabase Auth.
+
+Funciones:
+
+* Registro de restaurantes.
+* Registro de usuarios invitados.
+* Inicio de sesión.
+* Cierre de sesión.
+* Recuperación de contraseña.
+* Cambio de contraseña.
+* Verificación de correo.
+* Gestión de sesiones.
+* Invitación de colaboradores.
+* Control de acceso.
+* Protección de rutas.
+* Manejo de sesiones expiradas.
+
+No almacenar contraseñas en localStorage ni en texto plano.
+
+No utilizar usuarios de demostración en producción.
+
+6. ROLES Y PERMISOS
+
+Implementar un sistema flexible de permisos.
+
+Roles iniciales:
+
+* Superadministrador de Atom Labs.
+* Propietario del restaurante.
+* Administrador.
+* Editor.
+* Operador.
+* Mesero.
+* Cajero.
+* Cocina.
+* Domiciliario.
+
+El propietario podrá gestionar los permisos de su equipo según las capacidades de su plan.
+
+Cada acción debe validarse en el backend.
+
+7. PANEL PRINCIPAL DEL RESTAURANTE
+
+Crear un dashboard con información real:
+
+* Ventas.
+* Pedidos.
+* Pedidos pendientes.
+* Pedidos completados.
+* Productos más vendidos.
+* Clientes.
+* Ingresos por periodo.
+* Actividad reciente.
+* Estadísticas.
+* Indicadores operativos.
+
+Incluir filtros por fechas y rangos de tiempo.
+
+No utilizar cifras ficticias para aparentar actividad.
+
+8. CATÁLOGO DIGITAL Y MENÚ
+
+Cada restaurante podrá crear su catálogo público.
+
+Funciones:
+
+* Crear, editar y eliminar categorías.
+* Crear, editar y eliminar productos.
+* Cargar fotografías.
+* Descripciones.
+* Precios.
+* Variantes.
+* Adicionales.
+* Disponibilidad.
+* Productos destacados.
+* Productos agotados.
+* Ordenamiento.
+* Activación y desactivación de productos.
+
+Cada restaurante tendrá su propia tienda pública con enlace único.
+
+Preparar soporte para subdominios y dominios personalizados.
+
+9. PERSONALIZACIÓN DE LA TIENDA
+
+Cada negocio podrá configurar:
+
+* Nombre comercial.
+* Logotipo.
+* Portada.
+* Colores.
+* Tipografía.
+* Información de contacto.
+* Dirección.
+* Horarios.
+* Redes sociales.
+* Información del restaurante.
+* Diseño del catálogo.
+* Configuración de pedidos.
+
+La personalización de cada negocio será independiente.
+
+10. TIENDA PÚBLICA Y EXPERIENCIA DEL CLIENTE
+
+Los clientes podrán:
+
+* Entrar al catálogo sin iniciar sesión.
+* Consultar categorías y productos.
+* Ver fotografías y precios.
+* Seleccionar variantes.
+* Elegir adicionales.
+* Agregar productos al carrito.
+* Modificar cantidades.
+* Eliminar productos.
+* Consultar el total.
+* Registrar sus datos.
+* Indicar dirección de entrega.
+* Seleccionar entrega o recogida.
+* Seleccionar métodos de pago disponibles.
+* Confirmar pedidos.
+
+La experiencia debe ser rápida, intuitiva y optimizada para móviles.
+
+Validar disponibilidad y precios en el servidor antes de registrar cada pedido.
+
+11. SISTEMA DE PEDIDOS
+
+Implementar pedidos reales con persistencia en Supabase.
+
+Cada pedido debe contener:
+
+* Número único.
+* Restaurante.
+* Cliente.
+* Productos.
+* Cantidades.
+* Variantes.
+* Adicionales.
+* Precios unitarios.
+* Subtotal.
+* Descuentos.
+* Costo de domicilio.
+* Total.
+* Método de pago.
+* Modalidad de entrega.
+* Dirección.
+* Fecha y hora.
+* Estado.
+* Observaciones.
+
+Estados:
+
+* Pendiente.
+* Confirmado.
+* En preparación.
+* Listo.
+* En camino.
+* Entregado.
+* Cancelado.
+
+Registrar el historial de cambios de estado.
+
+El restaurante debe administrar los pedidos desde su panel.
+
+12. CLIENTES
+
+Implementar módulo de clientes con:
+
+* Registro.
+* Edición.
+* Historial de pedidos.
+* Datos de contacto.
+* Direcciones.
+* Búsqueda.
+* Filtros.
+
+Cada restaurante tendrá su propia base de clientes.
+
+13. MÓDULOS OPERATIVOS
+
+Construir los siguientes módulos:
+
+POS y ventas
+
+* Registro de ventas.
+* Selección de productos.
+* Carrito de venta.
+* Descuentos.
+* Métodos de pago.
+* Registro de transacciones.
+* Historial de ventas.
+
+Mesas
+
+* Mapa de mesas.
+* Estados de ocupación.
+* Apertura de cuentas.
+* Traslado de cuentas.
+* Unión y división de cuentas.
+* Asignación de meseros.
+
+Cocina y comandas
+
+* Recepción de pedidos.
+* Visualización de comandas.
+* Estados de preparación.
+* Actualización de estados.
+* Vista optimizada para pantallas de cocina.
+* Preparación para impresión.
+
+Domicilios
+
+* Gestión de entregas.
+* Asignación de domiciliarios.
+* Datos de entrega.
+* Seguimiento de estados.
+* Historial.
+
+Inventario
+
+* Productos e insumos.
+* Existencias.
+* Entradas y salidas.
+* Alertas de stock.
+* Proveedores.
+* Costos.
+* Historial de movimientos.
+* Productos compuestos.
+* Descuento automático de ingredientes.
+
+Caja
+
+* Apertura.
+* Cierre.
+* Ingresos.
+* Egresos.
+* Gastos.
+* Métodos de pago.
+* Arqueo.
+* Historial de movimientos.
+
+Reportes
+
+* Ventas por periodo.
+* Productos más vendidos.
+* Ingresos.
+* Gastos.
+* Pedidos.
+* Rendimiento del negocio.
+* Exportación de reportes.
+
+Funciones adicionales
+
+* Propinas.
+* Códigos de barras.
+* POS adaptable a dispositivos móviles.
+* Gestión de empleados.
+* Utilidades del negocio.
+
+Todos los módulos deben compartir el sistema de permisos y aislamiento multiempresa.
+
+No simular integraciones externas.
+
+14. PLANES Y SUSCRIPCIONES
+
+Implementar un sistema comercial administrable desde Atom Labs.
+
+Permitir:
+
+* Crear y editar planes.
+* Definir precios.
+* Definir periodicidad.
+* Definir límites de usuarios.
+* Definir límites de productos.
+* Habilitar módulos.
+* Suspender planes.
+* Gestionar suscripciones.
+* Consultar vencimientos.
+* Registrar pagos.
+* Consultar historial de pagos.
+* Activar o suspender negocios según suscripciones.
+
+Preparar pagos manuales mediante efectivo y transferencia bancaria.
+
+No aprobar pagos automáticamente sin confirmación real.
+
+Preparar arquitectura para pasarelas de pago futuras.
+
+15. FACTURACIÓN Y FUNCIONES COLOMBIANAS
+
+Preparar la arquitectura para una futura integración con facturación electrónica DIAN.
+
+No afirmar que se emiten facturas electrónicas válidas ante la DIAN sin implementar y validar la integración correspondiente.
+
+Incluir configuraciones regionales:
+
+* Pesos colombianos.
+* Formato de fechas.
+* Datos tributarios.
+* Información del establecimiento.
+
+16. SUPABASE Y BASE DE DATOS
+
+Utilizar Supabase como infraestructura principal.
+
+Implementar:
+
+* Supabase Auth.
+* PostgreSQL.
+* Row Level Security.
+* Supabase Storage.
+* Políticas de acceso.
+* Migraciones versionadas.
+* Relaciones y claves foráneas.
+* Índices.
+* Restricciones.
+* Validaciones.
+* Funciones de servidor cuando sean necesarias.
+
+Crear un esquema relacional que contemple, como mínimo:
+
+* profiles
+* businesses
+* memberships
+* roles
+* permissions
+* plans
+* subscriptions
+* payments
+* categories
+* products
+* product_variants
+* product_addons
+* settings
+* designs
+* customers
+* addresses
+* orders
+* order_items
+* order_status_history
+* tables
+* employees
+* kitchen_orders
+* deliveries
+* inventory_items
+* inventory_movements
+* suppliers
+* cash_registers
+* cash_movements
+* expenses
+* audit_logs
+
+Diseñar las relaciones de forma consistente, evitando duplicados.
+
+Entregar todas las migraciones SQL necesarias.
+
+17. SEGURIDAD
+
+Aplicar estándares de seguridad de producción:
+
+* Validación de datos en frontend y backend.
+* Autorización por roles.
+* RLS en todas las tablas con información privada.
+* Protección de endpoints.
+* Protección contra inyección SQL.
+* Protección contra XSS.
+* Protección CSRF cuando corresponda.
+* Rate limiting.
+* CORS restringido.
+* Manejo seguro de sesiones.
+* Gestión de secretos.
+* Registro de errores.
+* Auditoría de operaciones importantes.
+
+Nunca exponer claves privadas de Supabase en el navegador.
+
+Nunca incluir contraseñas, tokens ni secretos en GitHub.
+
+La clave service_role debe permanecer exclusivamente en el servidor.
+
+18. ARQUITECTURA Y CALIDAD
+
+Utilizar una arquitectura modular, organizada y escalable.
+
+Tecnologías preferidas:
+
+* React 19.
+* TypeScript.
+* Vite.
+* Node.js.
+* Express.
+* PostgreSQL.
+* Supabase.
+* Drizzle ORM, si resulta compatible.
+
+Implementar:
+
+* Manejo global de errores.
+* Estados de carga.
+* Estados vacíos.
+* Mensajes de confirmación.
+* Validaciones.
+* Paginación.
+* Búsquedas.
+* Filtros.
+* Componentes reutilizables.
+* Tipado consistente.
+* Separación de responsabilidades.
+
+No dejar botones sin funcionalidad, enlaces rotos, formularios sin guardar ni acciones que solamente cambien visualmente la pantalla.
+
+19. VARIABLES DE ENTORNO Y DESPLIEGUE
+
+Preparar el proyecto para producción.
+
+Crear documentación de variables necesarias:
+
+* DATABASE_URL.
+* SUPABASE_URL.
+* SUPABASE_ANON_KEY.
+* SUPABASE_SERVICE_ROLE_KEY.
+* SESSION_SECRET.
+* APP_URL.
+* CORS_ORIGINS.
+
+Crear:
+
+* Archivo .env.example sin secretos.
+* Configuración de producción.
+* Configuración de build.
+* Configuración del servidor.
+* Instrucciones de despliegue.
+* Documentación de Supabase.
+* Instrucciones de dominios y subdominios.
+* Procedimiento de migraciones.
+* Procedimiento de respaldos y recuperación.
+
+Preparar despliegue en Render o infraestructura compatible.
+
+No subir archivos .env con credenciales reales.
+
+20. PRUEBAS OBLIGATORIAS
+
+Probar:
+
+* Registro.
+* Inicio de sesión.
+* Recuperación de contraseña.
+* Creación de restaurantes.
+* Creación de usuarios.
+* Roles y permisos.
+* Aislamiento entre restaurantes.
+* Categorías.
+* Productos.
+* Imágenes.
+* Variantes.
+* Catálogo público.
+* Carrito.
+* Pedidos.
+* Cambios de estado.
+* Historial.
+* Suscripciones.
+* Restricciones por plan.
+* Superadministrador.
+* Seguridad de API.
+* Responsive.
+* Build de producción.
+
+Crear pruebas automatizadas para los flujos críticos.
+
+Verificar que un usuario de un restaurante no pueda acceder a los datos de otro, incluso manipulando solicitudes directamente.
+
+Corregir los errores encontrados y volver a ejecutar las pruebas.
+
+21. CRITERIOS DE ENTREGA
+
+El proyecto debe cumplir:
+
+1. Todas las pantallas conectadas a funciones reales.
+2. Base de datos funcional.
+3. Autenticación real.
+4. Multiempresa con aislamiento comprobado.
+5. Superadministrador funcional.
+6. Roles y permisos funcionales.
+7. Catálogos públicos funcionales.
+8. Pedidos funcionales.
+9. Módulos operativos implementados.
+10. Planes y suscripciones funcionales.
+11. Landing page comercial.
+12. Seguridad implementada.
+13. Build de producción exitoso.
+14. Pruebas ejecutadas.
+15. Documentación técnica.
+16. Preparación para despliegue.
+
+22. FORMA DE TRABAJO
+
+Construye la aplicación completa desde cero.
+
+No te limites a entregarme un plan, una lista de recomendaciones o código de ejemplo.
+
+Implementa los cambios reales en los archivos.
+
+Divide el desarrollo en etapas técnicas y completa cada una antes de continuar.
+
+No sustituyas funciones reales por datos ficticios.
+
+No simules conexiones con Supabase.
+
+No inventes resultados de pruebas.
+
+Si falta una credencial o configuración que solamente pueda proporcionar el propietario, deja el componente preparado, documenta exactamente qué falta y continúa con el resto.
+
+No declares terminado ningún módulo que no esté realmente implementado y probado.
+
+Al finalizar, presenta un informe con:
+
+* Funcionalidades terminadas.
+* Funcionalidades pendientes.
+* Archivos creados.
+* Migraciones creadas.
+* Variables de entorno requeridas.
+* Pruebas realizadas y resultados.
+* Errores encontrados y corregidos.
+* Pasos exactos para desplegar.
+
+OBJETIVO FINAL: CLICK OK debe convertirse en un SaaS comercial de Atom Labs, preparado para recibir restaurantes reales, gestionar sus operaciones y crecer de manera segura. Quiero el producto completo, con código real, persistencia real, seguridad real y funcionalidades comprobables.

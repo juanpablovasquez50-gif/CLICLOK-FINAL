@@ -10,6 +10,16 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: businesses
+    description: Restaurant workspaces
+  - name: categories
+    description: Menu categories
+  - name: products
+    description: Menu products
+  - name: orders
+    description: Restaurant orders
+  - name: dashboard
+    description: Operational summaries
 paths:
   /healthz:
     get:
@@ -24,7 +34,330 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /click-ok/businesses:
+    get:
+      operationId: listBusinesses
+      tags: [businesses]
+      summary: List businesses available to the signed-in user
+      responses:
+        "200":
+          description: Businesses the user can access
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Business"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    post:
+      operationId: createBusiness
+      tags: [businesses]
+      summary: Create a restaurant workspace for the signed-in user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BusinessInput"
+      responses:
+        "201":
+          description: Business created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Business"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/businesses/{businessId}/categories:
+    parameters:
+      - $ref: "#/components/parameters/BusinessId"
+    get:
+      operationId: listCategories
+      tags: [categories]
+      summary: List categories for a restaurant
+      responses:
+        "200":
+          description: Categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a menu category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/categories/{categoryId}:
+    parameters:
+      - name: categoryId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      operationId: updateCategory
+      tags: [categories]
+      summary: Update a menu category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryUpdate"
+      responses:
+        "200":
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a menu category
+      responses:
+        "204":
+          description: Category deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/businesses/{businessId}/products:
+    parameters:
+      - $ref: "#/components/parameters/BusinessId"
+    get:
+      operationId: listProducts
+      tags: [products]
+      summary: List products for a restaurant
+      responses:
+        "200":
+          description: Products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a menu product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/products/{productId}:
+    parameters:
+      - name: productId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a menu product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a menu product
+      responses:
+        "204":
+          description: Product deleted
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/businesses/{businessId}/orders:
+    parameters:
+      - $ref: "#/components/parameters/BusinessId"
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List recent orders for a restaurant
+      responses:
+        "200":
+          description: Orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/orders/{orderId}/status:
+    parameters:
+      - name: orderId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Advance an order status
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusUpdate"
+      responses:
+        "200":
+          description: Order status updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+  /click-ok/businesses/{businessId}/dashboard:
+    parameters:
+      - $ref: "#/components/parameters/BusinessId"
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get current operational totals for a restaurant
+      responses:
+        "200":
+          description: Dashboard totals computed from stored records
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Dashboard"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
 components:
+  parameters:
+    BusinessId:
+      name: businessId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    BadRequest:
+      description: The submitted data is invalid
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    Unauthorized:
+      description: A valid signed-in session is required
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    NotFound:
+      description: The requested record was not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
+    ServiceUnavailable:
+      description: Supabase connection is not configured or unavailable
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiError"
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +366,113 @@ components:
           type: string
       required:
         - status
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+    Business:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        name: { type: string }
+        slug: { type: string }
+        currency: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, name, slug, currency, createdAt]
+    BusinessInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        slug: { type: string, minLength: 2, maxLength: 60, pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$" }
+      required: [name, slug]
+    Category:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        businessId: { type: string, format: uuid }
+        name: { type: string }
+        sortOrder: { type: integer }
+        active: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, businessId, name, sortOrder, active, createdAt]
+    CategoryInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        sortOrder: { type: integer, minimum: 0 }
+      required: [name]
+    CategoryUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        sortOrder: { type: integer, minimum: 0 }
+        active: { type: boolean }
+    Product:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        businessId: { type: string, format: uuid }
+        categoryId: { type: ["string", "null"], format: uuid }
+        name: { type: string }
+        description: { type: ["string", "null"] }
+        priceCop: { type: integer, minimum: 0 }
+        available: { type: boolean }
+        featured: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, businessId, name, priceCop, available, featured, createdAt]
+    ProductInput:
+      type: object
+      properties:
+        categoryId: { type: ["string", "null"], format: uuid }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        description: { type: ["string", "null"], maxLength: 1000 }
+        priceCop: { type: integer, minimum: 0 }
+        available: { type: boolean }
+        featured: { type: boolean }
+      required: [name, priceCop]
+    ProductUpdate:
+      type: object
+      properties:
+        categoryId: { type: ["string", "null"], format: uuid }
+        name: { type: string, minLength: 1, maxLength: 120 }
+        description: { type: ["string", "null"], maxLength: 1000 }
+        priceCop: { type: integer, minimum: 0 }
+        available: { type: boolean }
+        featured: { type: boolean }
+    Order:
+      type: object
+      properties:
+        id: { type: string, format: uuid }
+        businessId: { type: string, format: uuid }
+        orderNumber: { type: integer }
+        customerName: { type: string }
+        totalCop: { type: integer, minimum: 0 }
+        status:
+          type: string
+          enum: [pending, confirmed, preparing, ready, on_the_way, delivered, cancelled]
+        createdAt: { type: string, format: date-time }
+      required: [id, businessId, orderNumber, customerName, totalCop, status, createdAt]
+    OrderStatusUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, preparing, ready, on_the_way, delivered, cancelled]
+      required: [status]
+    Dashboard:
+      type: object
+      properties:
+        salesTodayCop: { type: integer, minimum: 0 }
+        salesPreviousDayCop: { type: integer, minimum: 0 }
+        ordersToday: { type: integer, minimum: 0 }
+        pendingOrders: { type: integer, minimum: 0 }
+        productsCount: { type: integer, minimum: 0 }
+        customersCount: { type: integer, minimum: 0 }
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+      required: [salesTodayCop, salesPreviousDayCop, ordersToday, pendingOrders, productsCount, customersCount, recentOrders]
 

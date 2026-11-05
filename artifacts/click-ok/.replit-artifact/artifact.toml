@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "CLICK OK"
+description = "An operations platform for independent restaurants to manage digital catalogs, orders, staff, and daily service."
+version = "1.0.0"
+id = "artifacts/click-ok"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 23118
+
+[services.development]
+run = "pnpm --filter @workspace/click-ok run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/click-ok", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/click-ok/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23118"
+BASE_PATH = "/"
