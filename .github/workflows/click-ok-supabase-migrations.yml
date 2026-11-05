@@ -12,22 +12,9 @@ jobs:
     runs-on: ubuntu-latest
     environment: click-ok-staging
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Supabase CLI
-        uses: supabase/setup-cli@v1
-        with:
-          version: latest
-
-      - name: Mark existing core schema as applied
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      - name: Stop unsafe migration until schema preflight is verified
         run: |
-          supabase migration repair 202611050001 --status applied --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}"
-
-      - name: Apply pending CLICK OK migrations
-        env:
-          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
-        run: |
-          supabase db push --project-ref "${{ secrets.SUPABASE_PROJECT_REF }}" --password "${{ secrets.SUPABASE_DB_PASSWORD }}" --yes
+          echo "::error::Migration blocked: the existing CLICKOK schema has not yet been fully verified against migration 0001."
+          echo "Do not mark 202611050001 as applied based only on table names or column counts."
+          echo "A verified preflight must check column types, constraints, indexes, enum values, functions, triggers, RLS policies and grants before applying migrations 0002 and 0003."
+          exit 1
