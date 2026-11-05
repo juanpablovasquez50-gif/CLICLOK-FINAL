@@ -1,0 +1,72 @@
+name: CLICK OK - Apply inventory permissions migration 003
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: "Type APPLY-CLICKOK-003 to authorize the production permissions change"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  apply-inventory-permissions-003:
+    if: github.ref == 'refs/heads/click-ok-produccion' && inputs.confirm_production == 'APPLY-CLICKOK-003'
+    runs-on: ubuntu-latest
+    environment: click-ok-staging
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate secrets and link CLICKOK production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || (echo "::error::Missing SUPABASE_ACCESS_TOKEN" && exit 1)
+          test -n "$SUPABASE_DB_PASSWORD" || (echo "::error::Missing SUPABASE_DB_PASSWORD" && exit 1)
+          test -n "$SUPABASE_PROJECT_REF" || (echo "::error::Missing SUPABASE_PROJECT_REF" && exit 1)
+          supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      - name: Verify prerequisites before applying (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          cat > /tmp/click-ok-003-prerequisites.sql <<'SQL'
+          select
+            to_regprocedure('public.has_business_role(uuid,public.business_role[])') is not null as has_business_role_helper,
+            to_regtype('public.business_role') is not null as has_business_role_enum,
+            to_regprocedure('public.configure_product_inventory(uuid,boolean,integer,integer)') is null as inventory_function_not_yet_installed;
+          SQL
+          supabase db query --linked --read-only --file /tmp/click-ok-003-prerequisites.sql
+
+      - name: Apply migration 003 to CLICKOK production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db query --linked --yes --file supabase/migrations/202611050003_click_ok_inventory_permissions.sql
+
+      - name: Verify inventory permissions and function (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          cat > /tmp/click-ok-003-verification.sql <<'SQL'
+          select
+            has_table_privilege('authenticated', 'public.products', 'UPDATE') as authenticated_has_table_update,
+            has_column_privilege('authenticated', 'public.products', 'name', 'UPDATE') as can_update_name,
+            has_column_privilege('authenticated', 'public.products', 'description', 'UPDATE') as can_update_description,
+            has_column_privilege('authenticated', 'public.products', 'price_cop', 'UPDATE') as can_update_price,
+            has_column_privilege('authenticated', 'public.products', 'track_inventory', 'UPDATE') as can_directly_update_track_inventory,
+            has_column_privilege('authenticated', 'public.products', 'stock_quantity', 'UPDATE') as can_directly_update_stock,
+            has_column_privilege('authenticated', 'public.products', 'low_stock_threshold', 'UPDATE') as can_directly_update_threshold,
+            has_function_privilege('authenticated', 'public.configure_product_inventory(uuid,boolean,integer,integer)', 'EXECUTE') as can_execute_inventory_configuration;
+          SQL
+          supabase db query --linked --read-only --file /tmp/click-ok-003-verification.sql
