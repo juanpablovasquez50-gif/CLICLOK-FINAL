@@ -46,7 +46,7 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
         run: |
-          supabase db query --linked --file supabase/migrations/202611050002_click_ok_operations.sql
+          supabase db query --linked --yes --file supabase/migrations/202611050002_click_ok_operations.sql
 
       - name: Verify operational tables and product inventory columns (read-only)
         env:
