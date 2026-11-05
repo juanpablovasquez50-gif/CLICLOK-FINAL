@@ -2,7 +2,7 @@
 -- This script makes no schema or data changes. It fails closed on any mismatch.
 do $preflight$
 declare
-  item record;
+  item text[];
   missing text[] := array[]::text[];
   required_columns text[][] := array[
     array['profiles','id','uuid'],
@@ -93,7 +93,7 @@ declare
   ];
   t text;
 begin
-  foreach item in array required_columns loop
+  foreach item slice 1 in array required_columns loop
     if not exists (
       select 1 from information_schema.columns c
       where c.table_schema='public' and c.table_name=item[1]
