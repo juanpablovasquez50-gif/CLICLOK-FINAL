@@ -143,7 +143,8 @@ begin
     raise exception 'Authentication required' using errcode = '42501';
   end if;
   if p_movement_type not in ('in', 'out', 'adjustment')
-    or p_quantity is null or p_quantity <= 0 or p_quantity > 1000000
+    or p_quantity is null or p_quantity < 0 or p_quantity > 1000000
+    or (p_movement_type <> 'adjustment' and p_quantity = 0)
     or (p_note is not null and char_length(p_note) > 500)
     or p_reference_type not in ('manual', 'purchase', 'sale', 'return', 'correction') then
     raise exception 'Invalid inventory movement' using errcode = '22023';
@@ -181,7 +182,8 @@ begin
     business_id, product_id, movement_type, quantity,
     stock_before, stock_after, note, reference_type, created_by
   ) values (
-    product_row.business_id, product_row.id, p_movement_type, p_quantity,
+    product_row.business_id, product_row.id, p_movement_type,
+    greatest(abs(next_stock - product_row.stock_quantity), 1),
     product_row.stock_quantity, next_stock, nullif(trim(p_note), ''),
     p_reference_type, auth.uid()
   ) returning * into movement;
