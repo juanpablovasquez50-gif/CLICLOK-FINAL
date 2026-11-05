@@ -7,6 +7,9 @@ Los identificadores deben ser UUID válidos. La autorización final la aplican l
 
 ## Inventario
 
+- `PATCH /products/:productId/inventory`
+  - JSON: `{"trackInventory":true,"initialStock":12,"lowStockThreshold":3}`
+  - Habilita/deshabilita seguimiento y registra el saldo inicial en el libro de movimientos. Solo owner/admin/inventory.
 - `GET /businesses/:businessId/inventory-movements?limit=50`
   - Devuelve los últimos movimientos del negocio (límite máximo 100).
 - `POST /products/:productId/inventory-movements`
