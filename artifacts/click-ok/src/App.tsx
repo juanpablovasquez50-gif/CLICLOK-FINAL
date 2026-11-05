@@ -257,7 +257,7 @@ function PrivatePage({ page }: { page: string }) {
   if (!configured) return <AuthFrame mode="login"><div className="auth-form-wrap"><h2>Servicio no conectado</h2><ConfigNotice /><Link href="/" className="back-home">Volver al inicio</Link></div></AuthFrame>;
   if (!session) return <AuthFrame mode="login"><div className="auth-form-wrap"><div className="auth-form-kicker">ACCESO REQUERIDO</div><h2>Inicia sesión para continuar</h2><p className="auth-intro">La operación solo está disponible para personas con una cuenta activa.</p><Link href="/sign-in" className="button button-dark auth-submit" data-testid="link-private-sign-in">Ir a iniciar sesión <ArrowRight size={16} /></Link><Link href="/" className="back-home">Volver a CLICK OK</Link></div></AuthFrame>;
   const business = businesses.data?.[0];
-  const businessIdIsValid = typeof business?.id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(business.id);
+  const businessIdIsValid = typeof business?.id === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(business.id);
   const logout = () => {
     void signOut().catch(() => undefined).finally(() => {
       queryClient.clear();
