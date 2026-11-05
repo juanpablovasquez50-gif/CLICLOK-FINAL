@@ -28,6 +28,9 @@ export function InventoryPage({ businessId }: { businessId: string }) {
   const [kind, setKind] = useState('in');
   const [quantity, setQuantity] = useState('1');
   const [note, setNote] = useState('');
+  const [configureId, setConfigureId] = useState('');
+  const [initialStock, setInitialStock] = useState('0');
+  const [minimumStock, setMinimumStock] = useState('0');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -45,6 +48,7 @@ export function InventoryPage({ businessId }: { businessId: string }) {
   }, [businessId]);
   useEffect(() => { void load(); }, [load]);
   const tracked = products.filter(p => p.track_inventory);
+  async function configure(e: React.FormEvent<HTMLFormElement>) { e.preventDefault(); if (!db || !configureId) return; setBusy(true); setError(''); setNotice(''); const { error: rpcError } = await db.rpc('configure_product_inventory', { p_product_id: configureId, p_track_inventory: true, p_initial_stock: Number(initialStock), p_low_stock_threshold: Number(minimumStock) }); setBusy(false); if (rpcError) { setError(rpcError.message); return; } setNotice('Control de inventario activado.'); setConfigureId(''); setInitialStock('0'); setMinimumStock('0'); await load(); }
   async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!db || !selected) return;
@@ -69,6 +73,7 @@ export function InventoryPage({ businessId }: { businessId: string }) {
     </div>
     {error && <Notice error>{error} <button className="text-button" onClick={() => void load()}>Reintentar</button></Notice>}
     {notice && <Notice>{notice}</Notice>}
+    <section className="settings-card" style={{ marginBottom: 14 }}><div className="settings-card-head"><span className="settings-icon"><Package size={19}/></span><div><div className="panel-kicker">CONFIGURACIÓN</div><h2>Activar control de inventario</h2></div></div><form className="modal-form" onSubmit={configure}><label className="field-label">Producto<select value={configureId} onChange={e => setConfigureId(e.target.value)} required><option value="">Selecciona un producto sin seguimiento</option>{products.filter(p => !p.track_inventory).map(p => <option key={p.id} value={p.id}>{p.name}</option>)}</select></label><div className="form-columns"><label className="field-label">Existencias iniciales<input type="number" min="0" max="1000000" value={initialStock} onChange={e => setInitialStock(e.target.value)} required/></label><label className="field-label">Alerta de stock mínimo<input type="number" min="0" max="1000000" value={minimumStock} onChange={e => setMinimumStock(e.target.value)} required/></label></div><button className="button button-dark" disabled={busy || !configureId}>{busy ? 'Guardando…' : 'Activar inventario'}</button></form></section>
     <section className="data-panel">
       <div className="panel-heading"><div><div className="panel-kicker">EXISTENCIAS</div><h2>Productos inventariados</h2></div><span className="orders-total">{tracked.length} productos</span></div>
       {tracked.length === 0 ? <div className="empty-state"><div className="empty-mark"><Package size={20}/></div><h3>Aún no tienes inventario configurado</h3><p>Activa el control de existencias desde la configuración del producto. La migración de inventario debe estar aplicada en Supabase.</p></div> :
