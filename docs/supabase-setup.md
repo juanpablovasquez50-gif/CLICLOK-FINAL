@@ -1,6 +1,6 @@
 # CLICK OK — Supabase setup
 
-The application uses Supabase Auth and PostgreSQL. It does not use the Replit-managed database for restaurant records.
+The application uses Supabase Auth and PostgreSQL. It does not use the Replit-managed database for store or business records.
 
 ## Configure the project
 
@@ -17,13 +17,13 @@ The application uses Supabase Auth and PostgreSQL. It does not use the Replit-ma
 
 ## Current migration scope
 
-The initial migration creates profiles, restaurant workspaces, memberships, menu categories and products, customers, orders, order-status history, and the row-level security policies needed by the first operational release. It also creates the atomic `create_business` function so workspace creation and owner membership cannot be split into inconsistent writes.
+The initial migration creates profiles, business workspaces, memberships, product categories and products, customers, orders, order-status history, and the row-level security policies needed by the first operational release. It also creates the atomic `create_business` function so workspace creation and owner membership cannot be split into inconsistent writes.
 
-There is no seed data. An empty account remains empty until a restaurant creates its own records.
+There is no seed data. An empty account remains empty until a business creates its own records.
 
 ## Security notes
 
-- All restaurant data is tied to `business_id`.
+- All store and business data is tied to `business_id`.
 - Supabase RLS checks membership and role on reads and writes.
 - The API verifies the Supabase access token and forwards it; it never uses a service-role key.
 - Order status changes are checked by the API and recorded by a database trigger.

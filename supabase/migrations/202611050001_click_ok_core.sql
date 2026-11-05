@@ -1,4 +1,4 @@
--- CLICK OK core restaurant workspace.
+-- CLICK OK core commerce workspace.
 -- This migration targets the Supabase project configured for this app.
 -- Do not run it against the Replit-managed database.
 
@@ -9,10 +9,10 @@ create type public.business_role as enum (
   'admin',
   'editor',
   'operator',
-  'waiter',
+  'sales',
   'cashier',
-  'kitchen',
-  'courier'
+  'inventory',
+  'fulfillment'
 );
 
 create type public.order_status as enum (
@@ -258,7 +258,7 @@ begin
 
   if not public.has_business_role(
     order_row.business_id,
-    array['owner', 'admin', 'operator', 'cashier', 'kitchen', 'courier']::public.business_role[]
+    array['owner', 'admin', 'operator', 'sales', 'cashier', 'inventory', 'fulfillment']::public.business_role[]
   ) then
     raise exception 'Insufficient permission' using errcode = '42501';
   end if;
@@ -452,13 +452,13 @@ create policy "orders_update_operator"
   using (
     public.has_business_role(
       business_id,
-      array['owner', 'admin', 'operator', 'cashier', 'kitchen', 'courier']::public.business_role[]
+      array['owner', 'admin', 'operator', 'sales', 'cashier', 'inventory', 'fulfillment']::public.business_role[]
     )
   )
   with check (
     public.has_business_role(
       business_id,
-      array['owner', 'admin', 'operator', 'cashier', 'kitchen', 'courier']::public.business_role[]
+      array['owner', 'admin', 'operator', 'sales', 'cashier', 'inventory', 'fulfillment']::public.business_role[]
     )
   );
 

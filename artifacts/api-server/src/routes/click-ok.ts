@@ -268,7 +268,7 @@ router.post("/click-ok/businesses", async (req, res): Promise<void> => {
   }
   const row = (Array.isArray(data) ? data[0] : data) as BusinessRow | null;
   if (!row) {
-    res.status(503).json({ error: "The restaurant could not be created." });
+    res.status(503).json({ error: "The business could not be created." });
     return;
   }
   res.status(201).json(CreateBusinessResponse.parse(mapBusiness(row)));
