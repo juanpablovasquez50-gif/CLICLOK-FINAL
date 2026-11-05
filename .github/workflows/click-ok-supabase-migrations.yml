@@ -7,14 +7,38 @@ permissions:
   contents: read
 
 jobs:
-  migrate:
+  preflight:
     if: github.ref == 'refs/heads/click-ok-produccion'
     runs-on: ubuntu-latest
     environment: click-ok-staging
     steps:
-      - name: Stop unsafe migration until schema preflight is verified
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Authenticate and link CLICKOK project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
         run: |
-          echo "::error::Migration blocked: the existing CLICKOK schema has not yet been fully verified against migration 0001."
-          echo "Do not mark 202611050001 as applied based only on table names or column counts."
-          echo "A verified preflight must check column types, constraints, indexes, enum values, functions, triggers, RLS policies and grants before applying migrations 0002 and 0003."
-          exit 1
+          test -n "$SUPABASE_ACCESS_TOKEN" || (echo "::error::Missing SUPABASE_ACCESS_TOKEN" && exit 1)
+          test -n "$SUPABASE_DB_PASSWORD" || (echo "::error::Missing SUPABASE_DB_PASSWORD" && exit 1)
+          test -n "$SUPABASE_PROJECT_REF" || (echo "::error::Missing SUPABASE_PROJECT_REF" && exit 1)
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Verify existing CLICK OK core schema (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db query --linked --file supabase/preflight/20261105_click_ok_core_preflight.sql
+
+      - name: Report next step
+        if: success()
+        run: |
+          echo "Core schema preflight passed. No migrations were applied."
+          echo "The operations migrations still require a separate reviewed execution."
