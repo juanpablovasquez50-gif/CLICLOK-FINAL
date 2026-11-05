@@ -34,7 +34,7 @@ import {
 const router: IRouter = Router();
 
 type AuthorizedClient =
-  | { client: SupabaseClient }
+  | { client: SupabaseClient; userId: string }
   | { status: 401 | 503; error: string };
 
 type BusinessRow = {
@@ -170,7 +170,7 @@ async function getAuthorizedClient(req: Request): Promise<AuthorizedClient> {
     return { status: 401, error: "The session is invalid or has expired." };
   }
 
-  return { client };
+  return { client, userId: data.user.id };
 }
 
 function respondWithAuthError(res: Response, auth: AuthorizedClient): void {
@@ -234,28 +234,42 @@ router.get("/click-ok/businesses", async (req, res): Promise<void> => {
     return;
   }
 
-  // Resolve workspaces through the signed-in user's active memberships.
-  // This makes the ownership relationship explicit and avoids relying on a
-  // broad businesses-table listing to discover the current user's workspace.
-  const { data, error } = await auth.client
+  // First read only this authenticated user's active memberships, then
+  // fetch the matching businesses. Keeping these as two explicit queries
+  // avoids PostgREST embedded-relationship/RLS ambiguity.
+  const { data: memberships, error: membershipError } = await auth.client
     .from("memberships")
-    .select("business:businesses!inner(id,name,slug,currency,created_at)")
+    .select("business_id,created_at")
+    .eq("user_id", auth.userId)
     .eq("active", true)
-    .order("created_at", { foreignTable: "businesses", ascending: true });
+    .order("created_at", { ascending: true });
 
-  if (error) {
-    respondWithDatabaseError(req, res, error, "list-businesses-by-membership");
+  if (membershipError) {
+    respondWithDatabaseError(req, res, membershipError, "list-business-memberships");
     return;
   }
 
-  const businesses = (data ?? []).flatMap((membership) => {
-    const related = membership.business;
-    const row = Array.isArray(related) ? related[0] : related;
-    if (!row || typeof row.id !== "string") return [];
-    return [mapBusiness(row as BusinessRow)];
-  });
+  const businessIds = [...new Set((memberships ?? [])
+    .map((membership) => membership.business_id)
+    .filter((id): id is string => typeof id === "string"))];
 
-  res.json(ListBusinessesResponse.parse(businesses));
+  if (businessIds.length === 0) {
+    res.json(ListBusinessesResponse.parse([]));
+    return;
+  }
+
+  const { data: businesses, error: businessError } = await auth.client
+    .from("businesses")
+    .select("id,name,slug,currency,created_at")
+    .in("id", businessIds)
+    .order("created_at", { ascending: true });
+
+  if (businessError) {
+    respondWithDatabaseError(req, res, businessError, "list-businesses-by-membership");
+    return;
+  }
+
+  res.json(ListBusinessesResponse.parse((businesses ?? []).map(mapBusiness)));
 });
 
 router.post("/click-ok/businesses", async (req, res): Promise<void> => {
