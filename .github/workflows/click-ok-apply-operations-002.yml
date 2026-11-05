@@ -1,0 +1,59 @@
+name: CLICK OK - Apply operations migration 002
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_production:
+        description: "Type APPLY-CLICKOK-002 to authorize the production migration"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  apply-operations-002:
+    if: github.ref == 'refs/heads/click-ok-produccion' && inputs.confirm_production == 'APPLY-CLICKOK-002'
+    runs-on: ubuntu-latest
+    environment: click-ok-staging
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate required secrets and link project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || (echo "::error::Missing SUPABASE_ACCESS_TOKEN" && exit 1)
+          test -n "$SUPABASE_DB_PASSWORD" || (echo "::error::Missing SUPABASE_DB_PASSWORD" && exit 1)
+          test -n "$SUPABASE_PROJECT_REF" || (echo "::error::Missing SUPABASE_PROJECT_REF" && exit 1)
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Recheck operational prerequisites (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db query --linked --read-only --file supabase/preflight/20261105_click_ok_operations_preflight.sql
+
+      - name: Apply migration 002 to CLICKOK production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db query --linked --file supabase/migrations/202611050002_click_ok_operations.sql
+
+      - name: Verify operational tables and product inventory columns (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db query --linked --read-only --sql "select table_name from information_schema.tables where table_schema='public' and table_name in ('order_items','inventory_movements','cash_sessions','cash_movements') order by table_name; select column_name,data_type from information_schema.columns where table_schema='public' and table_name='products' and column_name in ('track_inventory','stock_quantity','low_stock_threshold') order by column_name;"
+
+      - name: Confirm migration 002 completed
+        if: success()
+        run: echo "Migration 002 completed and verification query succeeded. Migration 003 was not run."
