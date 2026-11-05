@@ -197,7 +197,7 @@ function respondWithDatabaseError(
     return;
   }
   if (code === "22023") {
-    res.status(400).json({ error: "That order status change is not allowed." });
+    res.status(400).json({ error: "The requested operation is not valid for the current record state." });
     return;
   }
   if (code === "23505" || code === "23503" || code === "23514") {
