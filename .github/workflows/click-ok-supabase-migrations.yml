@@ -37,8 +37,14 @@ jobs:
         run: |
           supabase db query --linked --read-only --file supabase/preflight/20261105_click_ok_core_preflight.sql
 
+      - name: Inspect operational migration readiness (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          supabase db query --linked --read-only --file supabase/preflight/20261105_click_ok_operations_preflight.sql
+
       - name: Report next step
         if: success()
         run: |
           echo "Core schema preflight passed. No migrations were applied."
-          echo "The operations migrations still require a separate reviewed execution."
+          echo "Operations readiness report completed. No migrations were applied."
