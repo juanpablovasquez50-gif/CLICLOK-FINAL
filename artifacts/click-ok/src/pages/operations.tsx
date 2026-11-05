@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
 import { Boxes, ListOrdered, Package, Wallet, ShieldCheck } from 'lucide-react';
 
-const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-const db = url && key ? createClient(url, key, { auth: { persistSession: true, storage: window.sessionStorage } }) : null;
+const db = supabase;
 const cop = (value: number | null | undefined) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value || 0);
 
 type Product = { id: string; name: string; track_inventory: boolean; stock_quantity: number; low_stock_threshold: number };
@@ -53,7 +51,7 @@ export function InventoryPage({ businessId }: { businessId: string }) {
     e.preventDefault();
     if (!db || !selected) return;
     const amount = Number(quantity);
-    if (!Number.isSafeInteger(amount) || amount < 1 || amount > 1000000) { setError('Ingresa una cantidad entera válida.'); return; }
+    if (!Number.isSafeInteger(amount) || amount < (kind === 'adjustment' ? 0 : 1) || amount > 1000000) { setError('Ingresa una cantidad entera válida.'); return; }
     setBusy(true); setError(''); setNotice('');
     const { error: rpcError } = await db.rpc('adjust_product_stock', {
       p_product_id: selected, p_movement_type: kind, p_quantity: amount,
@@ -84,7 +82,7 @@ export function InventoryPage({ businessId }: { businessId: string }) {
         <form className="modal-form" onSubmit={submit}>
           <label className="field-label">Producto<select value={selected} onChange={e => setSelected(e.target.value)} required><option value="">Selecciona un producto</option>{tracked.map(p => <option key={p.id} value={p.id}>{p.name} · {p.stock_quantity} disponibles</option>)}</select></label>
           <label className="field-label">Tipo de movimiento<select value={kind} onChange={e => setKind(e.target.value)}><option value="in">Entrada</option><option value="out">Salida</option><option value="adjustment">Ajustar a cantidad</option></select></label>
-          <label className="field-label">{kind === 'adjustment' ? 'Nueva cantidad' : 'Unidades'}<input type="number" min="1" max="1000000" step="1" value={quantity} onChange={e => setQuantity(e.target.value)} required/></label>
+          <label className="field-label">{kind === 'adjustment' ? 'Nueva cantidad' : 'Unidades'}<input type="number" min={kind === "adjustment" ? 0 : 1} max="1000000" step="1" value={quantity} onChange={e => setQuantity(e.target.value)} required/></label>
           <label className="field-label">Nota <span className="optional-label">opcional</span><textarea rows={2} maxLength={500} value={note} onChange={e => setNote(e.target.value)}/></label>
           <button className="button button-dark" type="submit" disabled={busy || !selected}>{busy ? 'Registrando…' : 'Registrar movimiento'}</button>
         </form>
