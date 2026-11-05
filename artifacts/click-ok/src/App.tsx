@@ -4,7 +4,7 @@ import { type Session as SupabaseSession } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 import { Link, Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Bell, Boxes, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, CreditCard, ExternalLink, Eye, EyeOff, Flame, LayoutDashboard, ListOrdered, LogOut, Menu as MenuIcon, Package, Plus, Search, Settings2, ShieldCheck, Sparkles, Wallet, X } from 'lucide-react';
-import { setAuthTokenGetter, useHealthCheck, useListBusinesses, getListBusinessesQueryKey, useCreateBusiness, useListCategories, getListCategoriesQueryKey, useCreateCategory, useUpdateCategory, useDeleteCategory, useListProducts, getListProductsQueryKey, useCreateProduct, useUpdateProduct, useDeleteProduct, useListOrders, getListOrdersQueryKey, useUpdateOrderStatus, useGetDashboard, getGetDashboardQueryKey } from '@workspace/api-client-react';
+import { setBaseUrl, setAuthTokenGetter, useHealthCheck, useListBusinesses, getListBusinessesQueryKey, useCreateBusiness, useListCategories, getListCategoriesQueryKey, useCreateCategory, useUpdateCategory, useDeleteCategory, useListProducts, getListProductsQueryKey, useCreateProduct, useUpdateProduct, useDeleteProduct, useListOrders, getListOrdersQueryKey, useUpdateOrderStatus, useGetDashboard, getGetDashboardQueryKey } from '@workspace/api-client-react';
 import type { Business, Category, Product, Order } from '@workspace/api-client-react';
 import NotFound from '@/pages/not-found';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -12,6 +12,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './index.css';
 import { InventoryPage, CashPage } from './pages/operations';
+
+setBaseUrl(import.meta.env.VITE_API_URL ?? null);
 
 const qc = new QueryClient();
 const configured = Boolean(supabase);
