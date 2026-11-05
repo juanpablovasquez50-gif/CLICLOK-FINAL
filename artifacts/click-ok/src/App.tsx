@@ -2,7 +2,7 @@ import { useEffect, useState, createContext, useContext } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { createClient, type Session as SupabaseSession } from '@supabase/supabase-js';
 import { Link, Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Bell, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, CreditCard, ExternalLink, Eye, EyeOff, Flame, LayoutDashboard, ListOrdered, LogOut, Menu as MenuIcon, Package, Plus, Search, Settings2, ShieldCheck, Sparkles, X } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Bell, Boxes, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, CreditCard, ExternalLink, Eye, EyeOff, Flame, LayoutDashboard, ListOrdered, LogOut, Menu as MenuIcon, Package, Plus, Search, Settings2, ShieldCheck, Sparkles, Wallet, X } from 'lucide-react';
 import { setAuthTokenGetter, useHealthCheck, useListBusinesses, getListBusinessesQueryKey, useCreateBusiness, useListCategories, getListCategoriesQueryKey, useCreateCategory, useUpdateCategory, useDeleteCategory, useListProducts, getListProductsQueryKey, useCreateProduct, useUpdateProduct, useDeleteProduct, useListOrders, getListOrdersQueryKey, useUpdateOrderStatus, useGetDashboard, getGetDashboardQueryKey } from '@workspace/api-client-react';
 import type { Business, Category, Product, Order } from '@workspace/api-client-react';
 import NotFound from '@/pages/not-found';
@@ -10,6 +10,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './index.css';
+import { InventoryPage, CashPage } from './pages/operations';
 
 const qc = new QueryClient();
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
@@ -125,6 +126,8 @@ function Routed() {
         title: 'Pedidos de tu negocio | CLICK OK',
         description: 'Revisa pedidos y actualiza su estado desde CLICK OK.',
       },
+      '/inventory': { title: 'Inventario | CLICK OK', description: 'Controla existencias y movimientos de inventario.' },
+      '/cash': { title: 'Caja | CLICK OK', description: 'Administra aperturas, movimientos y cierres de caja.' },
       '/settings': {
         title: 'Configuración del negocio | CLICK OK',
         description: 'Consulta la configuración de tu cuenta y negocio en CLICK OK.',
@@ -148,6 +151,8 @@ function Routed() {
     <Route path="/dashboard">{() => <PrivatePage page="dashboard" />}</Route>
     <Route path="/catalog">{() => <PrivatePage page="catalog" />}</Route>
     <Route path="/orders">{() => <PrivatePage page="orders" />}</Route>
+    <Route path="/inventory">{() => <PrivatePage page="inventory" />}</Route>
+    <Route path="/cash">{() => <PrivatePage page="cash" />}</Route>
     <Route path="/settings">{() => <PrivatePage page="settings" />}</Route>
     <Route component={NotFound} />
   </Switch></ErrorBoundary>;
@@ -246,6 +251,8 @@ const navItems = [
   { key: 'dashboard', label: 'Resumen', href: '/dashboard', icon: LayoutDashboard },
   { key: 'orders', label: 'Pedidos', href: '/orders', icon: ListOrdered },
   { key: 'catalog', label: 'Catálogo', href: '/catalog', icon: Package },
+  { key: 'inventory', label: 'Inventario', href: '/inventory', icon: Boxes },
+  { key: 'cash', label: 'Caja', href: '/cash', icon: Wallet },
   { key: 'settings', label: 'Configuración', href: '/settings', icon: Settings2 },
 ];
 function PrivatePage({ page }: { page: string }) {
@@ -271,7 +278,7 @@ function PrivatePage({ page }: { page: string }) {
     if (name.length < 2 || slug.length < 2) return;
     createBiz.mutate({ data: { name, slug } }, { onSuccess: () => { queryClient.invalidateQueries({ queryKey: getListBusinessesQueryKey() }); setShowBusinessForm(false); }, onError: () => window.alert('No se pudo crear el negocio. Inténtalo de nuevo.') });
   };
-  const content = !businesses.isLoading && !businesses.isError && !business ? <section className="setup-page"><div className="section-kicker">PRIMER PASO</div><div className="setup-card"><span className="setup-icon"><Package size={21} /></span><h1>¿Qué negocio vas a organizar?</h1><p>Registra tu tienda o negocio para empezar. No mostraremos datos hasta que existan en tu cuenta.</p>{showBusinessForm ? <form className="setup-form" onSubmit={makeBusiness}><label className="field-label">Nombre de la tienda o negocio<input name="name" data-testid="input-new-business-name" placeholder="Ej. Nativa Store" required minLength={2} maxLength={100} /></label><div className="setup-actions"><button type="button" className="button button-light" onClick={() => setShowBusinessForm(false)}>Cancelar</button><button className="button button-dark" type="submit" disabled={createBiz.isPending} data-testid="button-create-business">{createBiz.isPending ? 'Guardando…' : 'Crear espacio'} <ArrowRight size={16} /></button></div></form> : <button className="button button-dark" onClick={() => setShowBusinessForm(true)} data-testid="button-start-business"><Plus size={16} /> Registrar negocio</button>}</div></section> : businesses.isError ? <div className="content-pad"><ErrorNotice retry={() => businesses.refetch()} /></div> : businesses.isLoading ? <div className="content-pad"><LoadingRows /></div> : <>{page === 'dashboard' && <DashboardPage business={business!} />}{page === 'catalog' && <MenuPage business={business!} />}{page === 'orders' && <OrdersPage business={business!} />}{page === 'settings' && <SettingsPage business={business!} email={session.user?.email || ''} onLogout={logout} />}</>;
+  const content = !businesses.isLoading && !businesses.isError && !business ? <section className="setup-page"><div className="section-kicker">PRIMER PASO</div><div className="setup-card"><span className="setup-icon"><Package size={21} /></span><h1>¿Qué negocio vas a organizar?</h1><p>Registra tu tienda o negocio para empezar. No mostraremos datos hasta que existan en tu cuenta.</p>{showBusinessForm ? <form className="setup-form" onSubmit={makeBusiness}><label className="field-label">Nombre de la tienda o negocio<input name="name" data-testid="input-new-business-name" placeholder="Ej. Nativa Store" required minLength={2} maxLength={100} /></label><div className="setup-actions"><button type="button" className="button button-light" onClick={() => setShowBusinessForm(false)}>Cancelar</button><button className="button button-dark" type="submit" disabled={createBiz.isPending} data-testid="button-create-business">{createBiz.isPending ? 'Guardando…' : 'Crear espacio'} <ArrowRight size={16} /></button></div></form> : <button className="button button-dark" onClick={() => setShowBusinessForm(true)} data-testid="button-start-business"><Plus size={16} /> Registrar negocio</button>}</div></section> : businesses.isError ? <div className="content-pad"><ErrorNotice retry={() => businesses.refetch()} /></div> : businesses.isLoading ? <div className="content-pad"><LoadingRows /></div> : <>{page === 'dashboard' && <DashboardPage business={business!} />}{page === 'catalog' && <MenuPage business={business!} />}{page === 'orders' && <OrdersPage business={business!} />}{page === 'inventory' && <InventoryPage businessId={business!.id} />}{page === 'cash' && <CashPage businessId={business!.id} />}{page === 'settings' && <SettingsPage business={business!} email={session.user?.email || ''} onLogout={logout} />}</>;
   return <div className="app-shell"><aside className={`app-sidebar ${mobileNav ? 'mobile-open' : ''}`}><Link href="/dashboard" className="sidebar-brand" data-testid="link-app-brand"><span className="brand-symbol">C</span><span>CLICK<span className="brand-dot">.</span>OK</span></Link><div className="workspace-label">NEGOCIO</div><div className="workspace-switch"><span className="workspace-avatar">{business ? initials(business.name) : 'C'}</span><span className="workspace-name">{business?.name || 'Mi negocio'}</span><ChevronDown size={14} /></div><div className="sidebar-label">OPERACIÓN</div><nav className="sidebar-nav">{navItems.map(({ key, label, href, icon: Icon }) => <Link href={href} onClick={() => setMobileNav(false)} className={`sidebar-link ${path === href ? 'active' : ''}`} key={key} data-testid={`link-nav-${key}`}><Icon size={17} /><span>{label}</span>{key === 'orders' && <span className="nav-indicator" />}</Link>)}</nav><div className="sidebar-bottom"><div className="service-pill"><span className="live-dot" /><span>Cuenta activa</span></div><div className="sidebar-user"><div className="user-initial">{initials(session.user?.email || 'C')}</div><div className="user-meta"><b>{session.user?.email?.split('@')[0] || 'Mi cuenta'}</b><span>Propietario</span></div><IconButton label="cerrar sesión" onClick={logout}><LogOut size={16} /></IconButton></div><div className="atom-mark">UN PRODUCTO DE <b>ATOM LABS</b></div></div></aside><div className="app-main"><header className="app-topbar"><button className="mobile-menu" aria-label="Abrir navegación" onClick={() => setMobileNav((v) => !v)} data-testid="button-mobile-menu"><MenuIcon size={20} /></button><div className="breadcrumb"><span>CLICK OK</span><ChevronRight size={14} /><b>{navItems.find((n) => n.key === page)?.label || 'Resumen'}</b></div><div className="topbar-right"><span className="topbar-date">{new Intl.DateTimeFormat('es-CO', { weekday: 'short', day: 'numeric', month: 'short' }).format(new Date())}</span><span className="topbar-divider" /><span className="topbar-avatar">{initials(business?.name)}</span></div></header><main className="page-content">{content}</main></div>{mobileNav && <button className="mobile-scrim" aria-label="Cerrar navegación" onClick={() => setMobileNav(false)} />}</div>;
 }
 function PageHeading({ overline, title, detail, action }: { overline: string; title: string; detail: string; action?: React.ReactNode }) {
