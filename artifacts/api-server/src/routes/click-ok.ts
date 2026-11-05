@@ -887,4 +887,25 @@ router.post("/click-ok/cash-sessions/:sessionId/close", async (req, res): Promis
   res.json(data);
 });
 
+
+router.patch("/click-ok/products/:productId/inventory", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  if (!validUuid(req.params.productId)) { res.status(400).json({ error: "Invalid product identifier." }); return; }
+  const { trackInventory, initialStock, lowStockThreshold } = req.body ?? {};
+  if (typeof trackInventory !== "boolean"
+    || !Number.isSafeInteger(initialStock) || initialStock < 0 || initialStock > 1000000
+    || !Number.isSafeInteger(lowStockThreshold) || lowStockThreshold < 0 || lowStockThreshold > 1000000) {
+    res.status(400).json({ error: "Invalid inventory configuration." }); return;
+  }
+  const { data, error } = await auth.client.rpc("configure_product_inventory", {
+    p_product_id: req.params.productId,
+    p_track_inventory: trackInventory,
+    p_initial_stock: initialStock,
+    p_low_stock_threshold: lowStockThreshold,
+  });
+  if (error) { respondWithDatabaseError(req, res, error, "configure-product-inventory"); return; }
+  res.json(data);
+});
+
 export default router;
