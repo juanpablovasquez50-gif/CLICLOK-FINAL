@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Boxes, ListOrdered, Package, Wallet, ShieldCheck } from 'lucide-react';
 
 const db = supabase;
-const isUuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
+const isUuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const cop = (value: number | null | undefined) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value || 0);
 
 type Product = { id: string; name: string; track_inventory: boolean; stock_quantity: number; low_stock_threshold: number };
