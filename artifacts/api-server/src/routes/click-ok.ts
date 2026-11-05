@@ -197,7 +197,7 @@ function respondWithDatabaseError(
     return;
   }
   if (code === "22023") {
-    res.status(400).json({ error: "That order status change is not allowed." });
+    res.status(400).json({ error: "The requested operation is not valid for the current record state." });
     return;
   }
   if (code === "23505" || code === "23503" || code === "23514") {
@@ -766,5 +766,146 @@ router.get(
     res.json(GetDashboardResponse.parse(result));
   },
 );
+
+
+// Operational endpoints backed by SECURITY DEFINER RPCs and business-scoped RLS.
+const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+function validUuid(value: unknown): value is string {
+  return typeof value === "string" && uuidPattern.test(value);
+}
+
+router.get("/click-ok/businesses/:businessId/inventory-movements", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  const businessId = req.params.businessId;
+  if (!validUuid(businessId)) { res.status(400).json({ error: "Invalid business identifier." }); return; }
+  const limit = Math.min(Math.max(Number(req.query.limit) || 50, 1), 100);
+  const { data, error } = await auth.client
+    .from("inventory_movements")
+    .select("id,business_id,product_id,movement_type,quantity,stock_before,stock_after,note,reference_type,reference_id,created_by,created_at")
+    .eq("business_id", businessId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) { respondWithDatabaseError(req, res, error, "list-inventory-movements"); return; }
+  res.json(data ?? []);
+});
+
+router.post("/click-ok/products/:productId/inventory-movements", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  if (!validUuid(req.params.productId)) { res.status(400).json({ error: "Invalid product identifier." }); return; }
+  const { movementType, quantity, note, referenceType } = req.body ?? {};
+  if (!["in", "out", "adjustment"].includes(movementType)
+    || !Number.isSafeInteger(quantity) || quantity < 1 || quantity > 1000000
+    || (note !== undefined && note !== null && (typeof note !== "string" || note.length > 500))
+    || (referenceType !== undefined && !["manual", "purchase", "sale", "return", "correction"].includes(referenceType))) {
+    res.status(400).json({ error: "Invalid inventory movement details." }); return;
+  }
+  const { data, error } = await auth.client.rpc("adjust_product_stock", {
+    p_product_id: req.params.productId,
+    p_movement_type: movementType,
+    p_quantity: quantity,
+    p_note: note ?? null,
+    p_reference_type: referenceType ?? "manual",
+  });
+  if (error) { respondWithDatabaseError(req, res, error, "adjust-product-stock"); return; }
+  res.status(201).json(data);
+});
+
+router.get("/click-ok/businesses/:businessId/cash-sessions", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  const businessId = req.params.businessId;
+  if (!validUuid(businessId)) { res.status(400).json({ error: "Invalid business identifier." }); return; }
+  const limit = Math.min(Math.max(Number(req.query.limit) || 30, 1), 100);
+  const { data, error } = await auth.client
+    .from("cash_sessions")
+    .select("id,business_id,opened_by,closed_by,opening_amount_cop,closing_amount_cop,expected_amount_cop,difference_cop,status,notes,opened_at,closed_at")
+    .eq("business_id", businessId)
+    .order("opened_at", { ascending: false })
+    .limit(limit);
+  if (error) { respondWithDatabaseError(req, res, error, "list-cash-sessions"); return; }
+  res.json(data ?? []);
+});
+
+router.post("/click-ok/businesses/:businessId/cash-sessions", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  const businessId = req.params.businessId;
+  const { openingAmountCop, notes } = req.body ?? {};
+  if (!validUuid(businessId) || !Number.isSafeInteger(openingAmountCop)
+    || openingAmountCop < 0 || openingAmountCop > 2000000000
+    || (notes !== undefined && notes !== null && (typeof notes !== "string" || notes.length > 1000))) {
+    res.status(400).json({ error: "Invalid cash session details." }); return;
+  }
+  const { data, error } = await auth.client.rpc("open_cash_session", {
+    p_business_id: businessId,
+    p_opening_amount_cop: openingAmountCop,
+    p_notes: notes ?? null,
+  });
+  if (error) { respondWithDatabaseError(req, res, error, "open-cash-session"); return; }
+  res.status(201).json(data);
+});
+
+router.post("/click-ok/cash-sessions/:sessionId/movements", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  const { movementType, amountCop, description, referenceId } = req.body ?? {};
+  if (!validUuid(req.params.sessionId)
+    || !["sale", "income", "expense", "refund"].includes(movementType)
+    || !Number.isSafeInteger(amountCop) || amountCop < 1 || amountCop > 2000000000
+    || typeof description !== "string" || description.trim().length < 1 || description.length > 240
+    || (referenceId !== undefined && referenceId !== null && !validUuid(referenceId))) {
+    res.status(400).json({ error: "Invalid cash movement details." }); return;
+  }
+  const { data, error } = await auth.client.rpc("record_cash_movement", {
+    p_session_id: req.params.sessionId,
+    p_movement_type: movementType,
+    p_amount_cop: amountCop,
+    p_description: description.trim(),
+    p_reference_id: referenceId ?? null,
+  });
+  if (error) { respondWithDatabaseError(req, res, error, "record-cash-movement"); return; }
+  res.status(201).json(data);
+});
+
+router.post("/click-ok/cash-sessions/:sessionId/close", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  const { closingAmountCop, notes } = req.body ?? {};
+  if (!validUuid(req.params.sessionId)
+    || !Number.isSafeInteger(closingAmountCop) || closingAmountCop < 0 || closingAmountCop > 2000000000
+    || (notes !== undefined && notes !== null && (typeof notes !== "string" || notes.length > 1000))) {
+    res.status(400).json({ error: "Invalid cash closing details." }); return;
+  }
+  const { data, error } = await auth.client.rpc("close_cash_session", {
+    p_session_id: req.params.sessionId,
+    p_closing_amount_cop: closingAmountCop,
+    p_notes: notes ?? null,
+  });
+  if (error) { respondWithDatabaseError(req, res, error, "close-cash-session"); return; }
+  res.json(data);
+});
+
+
+router.patch("/click-ok/products/:productId/inventory", async (req, res): Promise<void> => {
+  const auth = await getAuthorizedClient(req);
+  if ("status" in auth) { respondWithAuthError(res, auth); return; }
+  if (!validUuid(req.params.productId)) { res.status(400).json({ error: "Invalid product identifier." }); return; }
+  const { trackInventory, initialStock, lowStockThreshold } = req.body ?? {};
+  if (typeof trackInventory !== "boolean"
+    || !Number.isSafeInteger(initialStock) || initialStock < 0 || initialStock > 1000000
+    || !Number.isSafeInteger(lowStockThreshold) || lowStockThreshold < 0 || lowStockThreshold > 1000000) {
+    res.status(400).json({ error: "Invalid inventory configuration." }); return;
+  }
+  const { data, error } = await auth.client.rpc("configure_product_inventory", {
+    p_product_id: req.params.productId,
+    p_track_inventory: trackInventory,
+    p_initial_stock: initialStock,
+    p_low_stock_threshold: lowStockThreshold,
+  });
+  if (error) { respondWithDatabaseError(req, res, error, "configure-product-inventory"); return; }
+  res.json(data);
+});
 
 export default router;
