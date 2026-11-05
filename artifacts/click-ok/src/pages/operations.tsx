@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Boxes, ListOrdered, Package, Wallet, ShieldCheck } from 'lucide-react';
 
 const db = supabase;
+const isUuid = (value: unknown): value is string => typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
 const cop = (value: number | null | undefined) => new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value || 0);
 
 type Product = { id: string; name: string; track_inventory: boolean; stock_quantity: number; low_stock_threshold: number };
@@ -33,6 +34,7 @@ export function InventoryPage({ businessId }: { businessId: string }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const load = useCallback(async () => {
+    if (!isUuid(businessId)) { setError('No se pudo identificar el negocio. Actualiza el panel e inténtalo de nuevo.'); setProducts([]); setMovements([]); return; }
     if (!db) { setError('Configura la conexión de Supabase para consultar el inventario.'); return; }
     const [p, m] = await Promise.all([
       db.from('products').select('id,name,track_inventory,stock_quantity,low_stock_threshold').eq('business_id', businessId).order('name'),
@@ -107,6 +109,7 @@ export function CashPage({ businessId }: { businessId: string }) {
   const [notice, setNotice] = useState('');
   const active = sessions.find(s => s.status === 'open');
   const load = useCallback(async () => {
+    if (!isUuid(businessId)) { setError('No se pudo identificar el negocio. Actualiza el panel e inténtalo de nuevo.'); setSessions([]); setMovements([]); return; }
     if (!db) { setError('Configura la conexión de Supabase para consultar la caja.'); return; }
     const { data, error: queryError } = await db.from('cash_sessions').select('id,status,opening_amount_cop,closing_amount_cop,expected_amount_cop,difference_cop,opened_at,closed_at').eq('business_id', businessId).order('opened_at', { ascending: false }).limit(20);
     if (queryError) { setError(queryError.message); return; }
@@ -122,6 +125,7 @@ export function CashPage({ businessId }: { businessId: string }) {
   }, [businessId]);
   useEffect(() => { void load(); }, [load]);
   async function run(action: 'open' | 'movement' | 'close') {
+    if (!isUuid(businessId)) { setError('No se pudo identificar el negocio. Actualiza el panel antes de operar la caja.'); return; }
     if (!db) return;
     setBusy(true); setError(''); setNotice('');
     let result: { error: { message: string } | null } = { error: null };
