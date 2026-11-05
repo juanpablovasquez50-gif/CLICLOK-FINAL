@@ -3,7 +3,7 @@ services:
     name: click-ok-api
     runtime: node
     plan: free
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/api-server build
     startCommand: pnpm --filter @workspace/api-server start
     healthCheckPath: /api/healthz
     envVars:
@@ -19,7 +19,7 @@ services:
   - type: web
     name: click-ok-web
     runtime: static
-    buildCommand: corepack enable && pnpm install --frozen-lockfile && pnpm --filter @workspace/click-ok build
+    buildCommand: pnpm install --frozen-lockfile && pnpm --filter @workspace/click-ok build
     staticPublishPath: artifacts/click-ok/dist/public
     envVars:
       - key: VITE_SUPABASE_URL
