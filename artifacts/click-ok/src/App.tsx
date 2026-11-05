@@ -1,6 +1,7 @@
 import { useEffect, useState, createContext, useContext } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
-import { createClient, type Session as SupabaseSession } from '@supabase/supabase-js';
+import { type Session as SupabaseSession } from '@supabase/supabase-js';
+import { supabase } from './lib/supabase';
 import { Link, Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Bell, Boxes, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, CreditCard, ExternalLink, Eye, EyeOff, Flame, LayoutDashboard, ListOrdered, LogOut, Menu as MenuIcon, Package, Plus, Search, Settings2, ShieldCheck, Sparkles, Wallet, X } from 'lucide-react';
 import { setAuthTokenGetter, useHealthCheck, useListBusinesses, getListBusinessesQueryKey, useCreateBusiness, useListCategories, getListCategoriesQueryKey, useCreateCategory, useUpdateCategory, useDeleteCategory, useListProducts, getListProductsQueryKey, useCreateProduct, useUpdateProduct, useDeleteProduct, useListOrders, getListOrdersQueryKey, useUpdateOrderStatus, useGetDashboard, getGetDashboardQueryKey } from '@workspace/api-client-react';
@@ -13,19 +14,7 @@ import './index.css';
 import { InventoryPage, CashPage } from './pages/operations';
 
 const qc = new QueryClient();
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
-const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
-const configured = Boolean(supabaseUrl && supabaseKey);
-const supabase = configured && typeof window !== 'undefined'
-  ? createClient(supabaseUrl!, supabaseKey!, {
-      auth: {
-        autoRefreshToken: true,
-        persistSession: true,
-        detectSessionInUrl: true,
-        storage: window.sessionStorage,
-      },
-    })
-  : null;
+const configured = Boolean(supabase);
 const SessionContext = createContext<{
   session: SupabaseSession | null;
   signOut: () => Promise<void>;
