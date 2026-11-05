@@ -1,0 +1,51 @@
+name: CLICK OK - Preflight inventory permissions 003
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight-inventory-permissions-003:
+    if: github.ref == 'refs/heads/click-ok-produccion'
+    runs-on: ubuntu-latest
+    environment: click-ok-staging
+    steps:
+      - name: Checkout production branch
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate secrets and link CLICKOK production
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+          SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+        run: |
+          test -n "$SUPABASE_ACCESS_TOKEN" || (echo "::error::Missing SUPABASE_ACCESS_TOKEN" && exit 1)
+          test -n "$SUPABASE_DB_PASSWORD" || (echo "::error::Missing SUPABASE_DB_PASSWORD" && exit 1)
+          test -n "$SUPABASE_PROJECT_REF" || (echo "::error::Missing SUPABASE_PROJECT_REF" && exit 1)
+          supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "$SUPABASE_DB_PASSWORD"
+
+      - name: Check current product permissions (read-only)
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          cat > /tmp/click-ok-inventory-permissions-preflight.sql <<'SQL'
+          -- Read-only preflight for CLICK OK inventory permissions migration 003.
+          select
+            has_table_privilege('authenticated', 'public.products', 'UPDATE') as authenticated_has_table_update,
+            has_column_privilege('authenticated', 'public.products', 'name', 'UPDATE') as can_update_name,
+            has_column_privilege('authenticated', 'public.products', 'description', 'UPDATE') as can_update_description,
+            has_column_privilege('authenticated', 'public.products', 'price_cop', 'UPDATE') as can_update_price,
+            has_column_privilege('authenticated', 'public.products', 'track_inventory', 'UPDATE') as can_directly_update_track_inventory,
+            has_column_privilege('authenticated', 'public.products', 'stock_quantity', 'UPDATE') as can_directly_update_stock,
+            has_column_privilege('authenticated', 'public.products', 'low_stock_threshold', 'UPDATE') as can_directly_update_threshold,
+            has_function_privilege('authenticated', 'public.configure_product_inventory(uuid,boolean,integer,integer)', 'EXECUTE') as can_execute_inventory_configuration;
+          
+          SQL
+          supabase db query --linked --read-only --file /tmp/click-ok-inventory-permissions-preflight.sql
