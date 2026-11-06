@@ -11,7 +11,7 @@ const slugify=(s:string)=>s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLo
 
 export function PublicStorefront({params}:{params:{slug:string}}) {
  const [data,setData]=useState<StoreData|null>(null),[loading,setLoading]=useState(true);
- useEffect(()=>{let alive=true;(async()=>{if(!supabase){setLoading(false);return;}const r=await supabase.rpc('get_public_storefront',{p_slug:params.slug});if(alive){setData(r.error?null:r.data as StoreData|null);setLoading(false);if(r.data){document.title=(r.data as StoreData).page.seo?.title||(r.data as StoreData).business.name;}}})();return()=>{alive=false;};},[params.slug]);
+ useEffect(()=>{let alive=true;(async()=>{if(!supabase){setLoading(false);return;}const r=await supabase.rpc('get_public_storefront',{p_slug:params.slug});if(alive){setData(r.error?null:r.data as StoreData|null);setLoading(false);if(r.data){document.title=(r.data as StoreData).page.seo?.title||(r.data as StoreData).business.name;document.querySelector('meta[name="description"]')?.setAttribute('content',(r.data as StoreData).page.seo?.description||(r.data as StoreData).page.content?.hero_description||'');}}})();return()=>{alive=false;};},[params.slug]);
  if(loading)return <main className="store-state">Cargando vitrina…</main>;
  if(!data)return <main className="store-state"><Store/><h1>Esta vitrina no está disponible</h1><p>El enlace no existe o el negocio aún no ha publicado su página.</p><Link href="/">Volver a CLICK OK</Link></main>;
  const primary=data.page.theme?.primary||'#7656ed', wa=String(data.page.contact?.whatsapp||'').replace(/\D/g,'');
