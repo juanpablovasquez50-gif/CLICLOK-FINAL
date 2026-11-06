@@ -105,3 +105,19 @@
 .store-section-toggle{display:flex!important;grid-template-columns:auto 1fr;align-items:center;gap:9px!important;padding:8px 0;font-weight:500!important}
 .store-section-toggle input{width:15px;height:15px;accent-color:var(--store-primary)}
 @media(max-width:760px){.public-store-hero.hero-minimal h1{padding-top:17px}.public-store-hero.hero-bold h1{min-height:180px;padding:22px}.public-store-hero.hero-bold p{padding:0 22px 22px}}
+
+/* Preview en vivo del editor */
+.store-editor-preview.live-preview{--preview-primary:#7656ed;--preview-background:#faf8f1;min-height:235px;padding:18px 20px;background:var(--preview-background);border-color:var(--store-line);display:flex;flex-direction:column;justify-content:space-between}
+.store-editor-preview.live-preview:after{display:none}
+.live-preview-top{display:flex;justify-content:space-between;align-items:center;gap:10px;position:relative;z-index:1}
+.live-preview-top b{font:700 12px var(--store-display);color:var(--store-ink)}
+.live-preview-top span,.live-preview-content small{font:700 8px var(--store-mono);letter-spacing:.8px;color:var(--store-muted)}
+.live-preview-content{position:relative;z-index:1;margin:18px 0}
+.live-preview-content h2{max-width:330px;margin:8px 0 6px;padding:0;color:var(--store-ink);font:800 25px/1.08 var(--store-display);letter-spacing:-.8px}
+.live-preview-content p{max-width:330px;margin:0 0 13px;color:var(--store-muted);font-size:10px;line-height:1.5}
+.live-preview-content i{display:block;width:48px;height:4px;border-radius:5px;background:var(--preview-primary)}
+.live-preview-tags{display:flex;flex-wrap:wrap;gap:6px;position:relative;z-index:1}
+.live-preview-tags span{padding:5px 8px;border:1px solid var(--store-line);border-radius:20px;background:#ffffffb8;color:var(--store-muted);font:700 8px var(--store-mono)}
+.store-editor-preview.live-preview.hero-bold .live-preview-content{padding:18px;background:var(--preview-primary);border-radius:4px}
+.store-editor-preview.live-preview.hero-bold .live-preview-content h2,.store-editor-preview.live-preview.hero-bold .live-preview-content p,.store-editor-preview.live-preview.hero-bold .live-preview-content small{color:white}
+.store-editor-preview.live-preview.hero-minimal .live-preview-content h2{border-bottom:2px solid var(--preview-primary);padding-bottom:8px}
