@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { Link, useLocation } from 'wouter';
 import { ArrowLeft, ExternalLink, Eye, Globe2, Save, Store } from 'lucide-react';
 import { supabase } from '../lib/supabase';
@@ -15,7 +16,7 @@ export function PublicStorefront({params}:{params:{slug:string}}) {
  if(loading)return <main className="store-state">Cargando vitrina…</main>;
  if(!data)return <main className="store-state"><Store/><h1>Esta vitrina no está disponible</h1><p>El enlace no existe o el negocio aún no ha publicado su página.</p><Link href="/">Volver a CLICK OK</Link></main>;
  const primary=data.page.theme?.primary||'#7656ed', wa=String(data.page.contact?.whatsapp||'').replace(/\D/g,'');
- return <main className="public-store" style={{'--store-primary':primary} as React.CSSProperties}>
+ return <main className="public-store" style={{'--store-primary':primary} as CSSProperties}>
  <header className="public-store-nav"><a className="public-store-brand" href="#"><b>{data.business.name.slice(0,1)}</b>{data.business.name}</a><a href="#catalogo">Catálogo</a></header>
  <section className="public-store-hero"><span><Globe2 size={14}/> TIENDA OFICIAL</span><h1>{data.page.content?.hero_title||('Bienvenido a '+data.business.name)}</h1><p>{data.page.content?.hero_description||'Conoce nuestros productos y encuentra lo que estás buscando.'}</p><a className="store-primary-button" href="#catalogo">Explorar catálogo</a></section>
  <section className="public-store-catalog" id="catalogo"><div className="store-section-heading"><div><span>LO QUE TENEMOS PARA TI</span><h2>Nuestro catálogo</h2></div><small>{data.products.length} productos</small></div>
