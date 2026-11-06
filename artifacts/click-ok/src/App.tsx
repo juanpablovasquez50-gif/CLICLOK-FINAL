@@ -188,14 +188,6 @@ function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const [createBusiness, setCreateBusiness] = useState(false);
   const queryClient = useQueryClient();
   const createBiz = useCreateBusiness();
-  useEffect(() => {
-    let active = true;
-    if (!supabase || !businesses.data?.[0]?.id) { setStorefrontPage(null); return () => { active = false; }; }
-    supabase.from('business_public_pages').select('slug,published').eq('business_id', businesses.data[0].id).maybeSingle().then(({ data }) => {
-      if (active) setStorefrontPage(data ? { slug: data.slug, published: Boolean(data.published) } : null);
-    });
-    return () => { active = false; };
-  }, [businesses.data?.[0]?.id, path]);
   useEffect(() => { if (session && mode === 'login') setLocation('/dashboard'); }, [session, mode, setLocation]);
   const completeOnboarding = () => {
     if (mode === 'login') { setLocation('/dashboard'); return; }
@@ -269,6 +261,14 @@ function PrivatePage({ page }: { page: string }) {
   const [showBusinessForm, setShowBusinessForm] = useState(false);
   const queryClient = useQueryClient();
   const businesses = useListBusinesses({ query: { enabled: Boolean(session), queryKey: getListBusinessesQueryKey(), retry: false } });
+  useEffect(() => {
+    let active = true;
+    if (!supabase || !businesses.data?.[0]?.id) { setStorefrontPage(null); return () => { active = false; }; }
+    supabase.from('business_public_pages').select('slug,published').eq('business_id', businesses.data[0].id).maybeSingle().then(({ data }) => {
+      if (active) setStorefrontPage(data ? { slug: data.slug, published: Boolean(data.published) } : null);
+    });
+    return () => { active = false; };
+  }, [businesses.data?.[0]?.id, path]);
   const createBiz = useCreateBusiness();
   if (!configured) return <AuthFrame mode="login"><div className="auth-form-wrap"><h2>Servicio no conectado</h2><ConfigNotice /><Link href="/" className="back-home">Volver al inicio</Link></div></AuthFrame>;
   if (!session) return <AuthFrame mode="login"><div className="auth-form-wrap"><div className="auth-form-kicker">ACCESO REQUERIDO</div><h2>Inicia sesión para continuar</h2><p className="auth-intro">La operación solo está disponible para personas con una cuenta activa.</p><Link href="/sign-in" className="button button-dark auth-submit" data-testid="link-private-sign-in">Ir a iniciar sesión <ArrowRight size={16} /></Link><Link href="/" className="back-home">Volver a CLICK OK</Link></div></AuthFrame>;
