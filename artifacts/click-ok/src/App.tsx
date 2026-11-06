@@ -13,7 +13,9 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import './index.css';
 import { InventoryPage, CashPage } from './pages/operations';
 
-setBaseUrl(import.meta.env.VITE_API_URL ?? null);
+// The web app and API are deployed as separate Render services. Keep an explicit
+// production fallback so requests never silently target the static-site origin.
+setBaseUrl(import.meta.env.VITE_API_URL?.trim() || 'https://click-ok-api.onrender.com');
 
 const qc = new QueryClient();
 const configured = Boolean(supabase);
