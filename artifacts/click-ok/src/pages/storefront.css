@@ -77,3 +77,11 @@
 .store-preview-link{background:#e9e5ff;color:#5638cf}
 @media(max-width:760px){.public-store-nav{padding:0 17px}.public-store-hero{padding:0 17px;margin-top:17px}.public-store-hero h1{min-height:155px;padding:20px 18px 10px}.public-store-hero p{padding:0 18px 20px}.public-store-catalog{padding:15px 17px 38px}.store-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.store-product-art{height:125px}.store-product-info{padding:10px}.store-product-info h3{font-size:12px}.store-product-info p{font-size:9px}.public-store-about,.store-editor-layout{grid-template-columns:1fr;gap:22px}.public-store-about{padding:27px 18px}.store-editor-layout{margin:22px auto;padding:0 17px}.store-editor-intro h1{font-size:36px}.store-editor-form{padding:18px}.public-store-footer{padding:16px 18px;gap:10px;flex-wrap:wrap}}
 @media(max-width:420px){.store-product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.store-product-art{height:112px}.store-product-info p{height:27px}.store-section-heading h2{font-size:20px}.public-store-hero h1{font-size:32px}.public-store-nav>a:last-child{font-size:7px}}
+
+.public-toolbar{position:sticky;top:0;z-index:8;display:flex;gap:9px;padding:9px 0;background:#faf8f1ed;backdrop-filter:blur(10px)}
+.store-search{display:flex!important;align-items:center;gap:9px;width:100%;min-height:42px;padding:0 13px;border:1px solid var(--store-line);border-radius:4px;background:#fffdf8;color:#8c9990}
+.store-search input{width:100%;min-width:0;border:0!important;outline:0!important;background:transparent!important;padding:8px 0!important;font:11px var(--store-sans)!important;color:var(--store-ink)}
+.public-categories{display:flex;gap:7px;overflow-x:auto;padding:3px 0 17px;scrollbar-width:none}
+.public-categories::-webkit-scrollbar{display:none}
+.public-categories button{min-height:31px;padding:0 12px;flex:0 0 auto;border:1px solid #e8e3d8;border-radius:20px;background:#fffdf8;color:#77877c;font-size:9px;cursor:pointer}
+.public-categories button.category-active{border-color:var(--store-green);background:var(--store-green);color:white}
