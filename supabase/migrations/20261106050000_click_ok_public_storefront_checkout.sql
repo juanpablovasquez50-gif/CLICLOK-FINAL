@@ -43,11 +43,11 @@ begin
     or (p_payment_method is not null and char_length(trim(p_payment_method)) > 80)
     or (p_customer_notes is not null and char_length(p_customer_notes) > 1000)
     or p_items is null
-    or case
+    or (case
       when jsonb_typeof(p_items) = 'array'
         then jsonb_array_length(p_items) < 1 or jsonb_array_length(p_items) > 50
       else true
-    end then
+    end) then
     raise exception 'Invalid order details' using errcode = '22023';
   end if;
 
