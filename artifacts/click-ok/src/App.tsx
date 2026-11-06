@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/reac
 import { type Session as SupabaseSession } from '@supabase/supabase-js';
 import { supabase } from './lib/supabase';
 import { Link, Route, Switch, Router as WouterRouter, useLocation } from 'wouter';
-import { ArrowDownRight, ArrowRight, ArrowUpRight, Bell, Boxes, Check, ChevronDown, ChevronRight, CircleHelp, Clock3, CreditCard, ExternalLink, Eye, EyeOff, Flame, LayoutDashboard, ListOrdered, LogOut, Menu as MenuIcon, Package, Plus, Search, Settings2, ShieldCheck, Sparkles, Wallet, X } from 'lucide-react';
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Bell, Boxes, Check, ChevronDown, Globe2, ChevronRight, CircleHelp, Clock3, CreditCard, ExternalLink, Eye, EyeOff, Flame, LayoutDashboard, ListOrdered, LogOut, Menu as MenuIcon, Package, Plus, Search, Settings2, ShieldCheck, Sparkles, Wallet, X } from 'lucide-react';
 import { setBaseUrl, setAuthTokenGetter, useHealthCheck, useListBusinesses, getListBusinessesQueryKey, useCreateBusiness, useListCategories, getListCategoriesQueryKey, useCreateCategory, useUpdateCategory, useDeleteCategory, useListProducts, getListProductsQueryKey, useCreateProduct, useUpdateProduct, useDeleteProduct, useListOrders, getListOrdersQueryKey, useUpdateOrderStatus, useGetDashboard, getGetDashboardQueryKey } from '@workspace/api-client-react';
 import type { Business, Category, Product, Order } from '@workspace/api-client-react';
 import NotFound from '@/pages/not-found';
@@ -12,6 +12,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import './index.css';
 import { InventoryPage, CashPage } from './pages/operations';
+import { PublicStorefront, StorefrontEditor } from './pages/storefront';
 
 // The web app and API are deployed as separate Render services. Keep an explicit
 // production fallback so requests never silently target the static-site origin.
@@ -147,6 +148,8 @@ function Routed() {
     <Route path="/inventory">{() => <PrivatePage page="inventory" />}</Route>
     <Route path="/cash">{() => <PrivatePage page="cash" />}</Route>
     <Route path="/settings">{() => <PrivatePage page="settings" />}</Route>
+    <Route path="/store-editor" component={StorefrontEditor} />
+    <Route path="/store/:slug">{(params) => <PublicStorefront params={params} />}</Route>
     <Route component={NotFound} />
   </Switch></ErrorBoundary>;
 }
@@ -392,7 +395,7 @@ function SettingsPage({ business, email, onLogout }: { business: Business; email
     setSavingType(false);
     setTypeMessage(error ? 'No se pudo guardar el sector. Verifica tus permisos e inténtalo de nuevo.' : 'Sector del negocio actualizado.');
   }
-  return <div className="page-wrap"><PageHeading overline="TU ESPACIO" title="Configuración" detail="Los datos principales de tu negocio y tu cuenta." /><div className="settings-layout">
+  return <div className="page-wrap"><PageHeading overline="TU ESPACIO" title="Configuración" detail="Los datos principales de tu negocio y tu cuenta." action={<Link className="button button-dark" href="/store-editor"><Globe2 size={16} /> Configurar vitrina pública</Link>} /><div className="settings-layout">
     <section className="settings-card"><div className="settings-card-head"><span className="settings-icon"><Package size={19} /></span><div><div className="panel-kicker">NEGOCIO ACTIVO</div><h2>Información básica</h2></div></div>
       <div className="setting-row"><span>Nombre del negocio</span><b data-testid="text-business-name">{business.name}</b></div>
       <div className="setting-row"><span>Identificador</span><div className="slug-field"><code>{business.slug}</code><button className="text-button" onClick={() => { navigator.clipboard?.writeText(business.slug); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }} data-testid="button-copy-slug">{copied ? 'Copiado' : 'Copiar'}</button></div></div>
