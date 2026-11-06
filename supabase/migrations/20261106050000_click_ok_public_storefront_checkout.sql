@@ -27,6 +27,7 @@ set search_path = ''
 as $$
 declare
   page_row public.business_public_pages;
+  business_is_active boolean;
   customer_row public.customers;
   order_row public.orders;
   item jsonb;
@@ -59,6 +60,14 @@ begin
     raise exception 'Storefront is not available' using errcode = 'P0002';
   end if;
 
+  select b.status = 'active' into business_is_active
+  from public.businesses b
+  where b.id = page_row.business_id;
+
+  if coalesce(business_is_active, false) = false then
+    raise exception 'Storefront is not available' using errcode = 'P0002';
+  end if;
+
   select * into customer_row
   from public.customers c
   where c.business_id = page_row.business_id
@@ -87,7 +96,7 @@ begin
       or (item->>'quantity') !~ '^[0-9]{1,6}$'
       or (item ? 'options' and case
         when jsonb_typeof(item->'options') = 'array'
-          then jsonb_array_length(item->'options') > 20
+          then jsonb_array_length(item->'options') <> 0
         else true
       end) then
       raise exception 'Invalid order item' using errcode = '22023';
@@ -103,6 +112,7 @@ begin
     where p.id = (item->>'product_id')::uuid
       and p.business_id = page_row.business_id
       and p.available = true
+      and p.track_inventory = false
     for share;
 
     if not found then
@@ -155,5 +165,5 @@ begin
 end;
 $$;
 
-revoke all on function public.create_public_storefront_order(text,text,text,text,text,text,text,jsonb) from public, authenticated;
-grant execute on function public.create_public_storefront_order(text,text,text,text,text,text,text,jsonb) to anon, authenticated;
+revoke all on function public.create_public_storefront_order(text,text,text,text,text,text,text,jsonb) from public, anon, authenticated;
+grant execute on function public.create_public_storefront_order(text,text,text,text,text,text,text,jsonb) to anon;
