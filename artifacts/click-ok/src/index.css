@@ -705,3 +705,61 @@
     inset: -1px;
   }
 }
+
+/* CLICK OK workspace refresh — visual hierarchy inspired by Menuya */
+.app-shell{background:#f2f5f9;color:#1c2938}
+.app-sidebar{background:#172434;color:#e9eff7;border-right:1px solid #263648;width:252px;padding:22px 14px 14px}
+.sidebar-brand{font-size:17px;padding:0 10px 10px}
+.sidebar-brand .brand-symbol{background:#19c4df;color:#172434;border-radius:8px}
+.workspace-label,.sidebar-label{color:#91a2b6;margin-top:25px}
+.workspace-switch{background:#223448;border:1px solid #34485e;border-radius:8px;padding:10px}
+.workspace-avatar{background:#19c4df;color:#172434;border-radius:7px}
+.sidebar-link{min-height:43px;border-radius:7px;color:#b6c3d2;padding:0 12px}
+.sidebar-link:hover{background:#223448;color:#fff}
+.sidebar-link.active{background:#293d53;color:#fff;border-left:3px solid #16c6df;padding-left:9px}
+.sidebar-link.active svg{color:#19c4df}
+.sidebar-bottom .service-pill{border-color:#34475b;border-radius:7px}
+.app-topbar{background:#f8fafc;border-color:#e1e7ef;padding:0 32px}
+.breadcrumb{font:500 11px var(--font-body);letter-spacing:0;color:#8190a2}
+.breadcrumb b{color:#263548}
+.page-content{padding:34px 34px 56px}
+.page-heading h1{color:#1c2938;letter-spacing:-.055em}
+.page-heading p{font-size:13px;color:#8a98a8}
+.page-heading .section-kicker,.panel-kicker{color:#829487;letter-spacing:.12em;font:700 9px var(--font-mono-ui)}
+.metric-grid{gap:14px}
+.metric-card{background:#f8fafc;border:1px solid #dfe6ef;border-radius:7px;min-height:142px;padding:18px}
+.metric-featured{background:#eaf1e9;border-color:#dce7dc;color:#243b32}
+.metric-featured .metric-head{color:#7b9182}
+.metric-featured .metric-head svg{color:#7b9a83}
+.metric-card strong,.metric-featured strong{color:#1e2d3d;font-size:30px}
+.metric-featured .metric-foot,.metric-featured .trend-up{color:#65866d}
+.data-panel,.product-list,.category-manage,.settings-card{background:#f8fafc;border:1px solid #dfe6ef;border-radius:7px}
+.panel-heading{border-color:#e5ebf2}
+.panel-heading h2,.category-manage-title h2{color:#1f2e3e}
+.orders-summary{background:#eaf1e9;color:#243b32;border:1px solid #dce7dc;border-radius:7px;overflow:hidden}
+.orders-summary>div{border-color:#d7e2d8}
+.orders-summary>div>span{color:#718779}
+.orders-summary b{color:#1f2d3d}
+.orders-summary .summary-yellow{color:#a67835}
+.orders-summary .summary-callout{color:#5f7568}
+.orders-summary .summary-callout svg{color:#7d9a80}
+.orders-filter button,.orders-search{border-radius:6px;background:#f8fafc;border-color:#dfe6ef}
+.orders-filter button.current{background:#e8edf8;border-color:#bfcbe0;color:#4e5e9a}
+.orders-toolbar{display:grid;gap:10px;margin-bottom:13px}
+.orders-search{display:flex;align-items:center;gap:9px;max-width:430px;min-height:42px;padding:0 12px;border:1px solid #dfe6ef;color:#8795a6}
+.orders-search input{min-width:0;width:100%;border:0;outline:0;background:transparent;color:#263548;font-size:12px}
+.orders-filter{margin:0}
+.orders-table th{background:#edf2f8;color:#64758a}
+.orders-table td{border-color:#e5ebf2;color:#5e6d7f}
+.orders-table tbody tr:hover{background:#f1f5fa}
+.order-id,.order-total{color:#26374a!important}
+.status-pill{border-radius:999px;padding:6px 10px;font-size:9px}
+.menu-toolbar{background:#f8fafc;border-color:#e3e9f0;border-radius:7px}
+.search-box{background:#fff;border-color:#d9e2ed;border-radius:6px}
+.category-chip.selected{background:#e8edf8;border-color:#cbd5e8;color:#4e5e9a}
+.product-row{border-color:#e6ebf1}
+.product-titleline h3{color:#263548}
+.product-thumb{border-radius:7px;background:#eaf1e9}
+.button-dark{background:#6d55ed;color:#fff}
+.button-dark:hover{background:#5b43dc}
+@media(max-width:760px){.app-sidebar{width:270px}.page-content{padding:24px 15px 42px}.orders-search{max-width:none;width:100%;box-sizing:border-box}.orders-filter{margin-right:-15px}}
