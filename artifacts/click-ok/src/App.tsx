@@ -357,7 +357,54 @@ function OrdersPage({ business }: { business: Business }) {
 function SettingsPage({ business, email, onLogout }: { business: Business; email: string; onLogout: () => void }) {
   const health = useHealthCheck({ query: { retry: false } });
   const [copied, setCopied] = useState(false);
-  return <div className="page-wrap"><PageHeading overline="TU ESPACIO" title="Configuración" detail="Los datos principales de tu negocio y tu cuenta." /><div className="settings-layout"><section className="settings-card"><div className="settings-card-head"><span className="settings-icon"><Package size={19} /></span><div><div className="panel-kicker">NEGOCIO ACTIVO</div><h2>Información básica</h2></div></div><div className="setting-row"><span>Nombre del negocio</span><b data-testid="text-business-name">{business.name}</b></div><div className="setting-row"><span>Identificador</span><div className="slug-field"><code>{business.slug}</code><button className="text-button" onClick={() => { navigator.clipboard?.writeText(business.slug); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }} data-testid="button-copy-slug">{copied ? 'Copiado' : 'Copiar'}</button></div></div><div className="setting-row"><span>Moneda</span><b>{business.currency}</b></div><div className="setting-row"><span>Espacio creado</span><b>{new Intl.DateTimeFormat('es-CO', { dateStyle: 'long' }).format(new Date(business.createdAt))}</b></div><div className="settings-note"><CircleHelp size={16} /><span>La edición del nombre y la moneda aún no está disponible en el servicio.</span></div></section><section className="settings-card"><div className="settings-card-head"><span className="settings-icon gold-setting"><ShieldCheck size={19} /></span><div><div className="panel-kicker">ACCESO SEGURO</div><h2>Tu cuenta</h2></div></div><div className="setting-row"><span>Correo de acceso</span><b data-testid="text-account-email">{email || 'Cuenta autenticada'}</b></div><div className="setting-row"><span>Proveedor de autenticación</span><b>Supabase Auth</b></div><div className="settings-note"><ShieldCheck size={16} /><span>La sesión se gestiona de forma segura. Los datos de operación no se guardan en este dispositivo.</span></div><button className="button button-light logout-button" onClick={onLogout} data-testid="button-settings-sign-out"><LogOut size={16} /> Cerrar sesión</button></section><section className="settings-card service-card"><div className="settings-card-head"><span className="settings-icon"><Bell size={18} /></span><div><div className="panel-kicker">ESTADO DEL SERVICIO</div><h2>Conexión</h2></div></div><div className="setting-row"><span>API de CLICK OK</span><b className="service-status" data-testid="status-api-health"><i className={health.data?.status === 'ok' ? 'health-good' : ''} />{health.isLoading ? 'Verificando' : health.isError ? 'No disponible' : health.data?.status || 'Conectada'}</b></div><div className="settings-note"><CircleHelp size={16} /><span>Planes, facturación y preferencias avanzadas se habilitarán cuando el servicio los soporte.</span></div></section></div><div className="settings-footer"><span>CLICK OK · OPERACIÓN PARA COMERCIOS</span><span>Un producto de ATOM LABS</span></div></div>;
+  const [businessTypes, setBusinessTypes] = useState<Array<{id:string;name:string;description:string|null}>>([]);
+  const [businessType, setBusinessType] = useState('');
+  const [loadingType, setLoadingType] = useState(true);
+  const [savingType, setSavingType] = useState(false);
+  const [typeMessage, setTypeMessage] = useState('');
+  useEffect(() => {
+    let active = true;
+    async function loadBusinessType() {
+      if (!supabase) { setLoadingType(false); return; }
+      const [typesResult, businessResult] = await Promise.all([
+        supabase.from('business_types').select('id,name,description').eq('active', true).order('sort_order'),
+        supabase.from('businesses').select('business_type_id').eq('id', business.id).maybeSingle(),
+      ]);
+      if (!active) return;
+      if (typesResult.error || businessResult.error) {
+        setTypeMessage('No pudimos cargar la configuración del sector.');
+      } else {
+        setBusinessTypes(typesResult.data ?? []);
+        setBusinessType(businessResult.data?.business_type_id ?? '');
+      }
+      setLoadingType(false);
+    }
+    void loadBusinessType();
+    return () => { active = false; };
+  }, [business.id]);
+  async function saveBusinessType() {
+    if (!supabase || !businessType) return;
+    setSavingType(true); setTypeMessage('');
+    const { error } = await supabase.rpc('set_business_type', {
+      p_business_id: business.id,
+      p_business_type_id: businessType,
+    });
+    setSavingType(false);
+    setTypeMessage(error ? 'No se pudo guardar el sector. Verifica tus permisos e inténtalo de nuevo.' : 'Sector del negocio actualizado.');
+  }
+  return <div className="page-wrap"><PageHeading overline="TU ESPACIO" title="Configuración" detail="Los datos principales de tu negocio y tu cuenta." /><div className="settings-layout">
+    <section className="settings-card"><div className="settings-card-head"><span className="settings-icon"><Package size={19} /></span><div><div className="panel-kicker">NEGOCIO ACTIVO</div><h2>Información básica</h2></div></div>
+      <div className="setting-row"><span>Nombre del negocio</span><b data-testid="text-business-name">{business.name}</b></div>
+      <div className="setting-row"><span>Identificador</span><div className="slug-field"><code>{business.slug}</code><button className="text-button" onClick={() => { navigator.clipboard?.writeText(business.slug); setCopied(true); window.setTimeout(() => setCopied(false), 1800); }} data-testid="button-copy-slug">{copied ? 'Copiado' : 'Copiar'}</button></div></div>
+      <div className="setting-row"><span>Moneda</span><b>{business.currency}</b></div>
+      <div className="setting-row"><span>Espacio creado</span><b>{new Intl.DateTimeFormat('es-CO', { dateStyle: 'long' }).format(new Date(business.createdAt))}</b></div>
+      <div className="setting-row"><span>Tipo de negocio</span><div className="slug-field"><select aria-label="Tipo de negocio" value={businessType} onChange={e => {setBusinessType(e.target.value);setTypeMessage('');}} disabled={loadingType || savingType} style={{maxWidth:220,padding:'8px',border:'1px solid var(--border)',borderRadius:8,background:'var(--surface)'}}><option value="">Selecciona un sector</option>{businessTypes.map(type=><option key={type.id} value={type.id}>{type.name}</option>)}</select><button className="button button-dark" type="button" onClick={()=>void saveBusinessType()} disabled={!businessType || loadingType || savingType}>{savingType?'Guardando…':'Guardar sector'}</button></div></div>
+      {typeMessage && <div className="settings-note" role="status"><CircleHelp size={16} /><span>{typeMessage}</span></div>}
+      <div className="settings-note"><CircleHelp size={16} /><span>El sector ayuda a CLICK OK a adaptar los módulos y herramientas disponibles para tu negocio.</span></div>
+    </section>
+    <section className="settings-card"><div className="settings-card-head"><span className="settings-icon gold-setting"><ShieldCheck size={19} /></span><div><div className="panel-kicker">ACCESO SEGURO</div><h2>Tu cuenta</h2></div></div><div className="setting-row"><span>Correo de acceso</span><b data-testid="text-account-email">{email || 'Cuenta autenticada'}</b></div><div className="setting-row"><span>Proveedor de autenticación</span><b>Supabase Auth</b></div><div className="settings-note"><ShieldCheck size={16} /><span>La sesión se gestiona de forma segura. Los datos de operación no se guardan en este dispositivo.</span></div><button className="button button-light logout-button" onClick={onLogout} data-testid="button-settings-sign-out"><LogOut size={16} /> Cerrar sesión</button></section>
+    <section className="settings-card service-card"><div className="settings-card-head"><span className="settings-icon"><Bell size={18} /></span><div><div className="panel-kicker">ESTADO DEL SERVICIO</div><h2>Conexión</h2></div></div><div className="setting-row"><span>API de CLICK OK</span><b className="service-status" data-testid="status-api-health"><i className={health.data?.status === 'ok' ? 'health-good' : ''} />{health.isLoading ? 'Verificando' : health.isError ? 'No disponible' : health.data?.status || 'Conectada'}</b></div><div className="settings-note"><CircleHelp size={16} /><span>Planes, facturación y preferencias avanzadas se habilitarán cuando el servicio los soporte.</span></div></section>
+  </div><div className="settings-footer"><span>CLICK OK · PLATAFORMA MULTIPROPÓSITO</span><span>Un producto de ATOM LABS</span></div></div>;
 }
 
 export default App;
