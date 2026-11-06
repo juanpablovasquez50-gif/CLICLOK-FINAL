@@ -195,7 +195,7 @@ function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       if (active) setStorefrontPage(data ? { slug: data.slug, published: Boolean(data.published) } : null);
     });
     return () => { active = false; };
-  }, [businesses.data?.[0]?.id]);
+  }, [businesses.data?.[0]?.id, path]);
   useEffect(() => { if (session && mode === 'login') setLocation('/dashboard'); }, [session, mode, setLocation]);
   const completeOnboarding = () => {
     if (mode === 'login') { setLocation('/dashboard'); return; }
