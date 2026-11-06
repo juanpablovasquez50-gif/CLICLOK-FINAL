@@ -127,7 +127,7 @@ function Routed() {
         description: 'Consulta la configuración de tu cuenta y negocio en CLICK OK.',
       },
     };
-    const metadata = pages[path] ?? {
+    if (path.startsWith('/store/')) return;\n    const metadata = pages[path] ?? {
       title: 'Página no encontrada | CLICK OK',
       description: 'La página solicitada no está disponible en CLICK OK.',
     };
