@@ -41,9 +41,12 @@ begin
     or (p_delivery_method = 'delivery' and (p_delivery_address is null or char_length(trim(p_delivery_address)) not between 5 and 300))
     or (p_payment_method is not null and char_length(trim(p_payment_method)) > 80)
     or (p_customer_notes is not null and char_length(p_customer_notes) > 1000)
-    or p_items is null or jsonb_typeof(p_items) <> 'array'
-    or jsonb_array_length(p_items) < 1
-    or jsonb_array_length(p_items) > 50 then
+    or p_items is null
+    or case
+      when jsonb_typeof(p_items) = 'array'
+        then jsonb_array_length(p_items) < 1 or jsonb_array_length(p_items) > 50
+      else true
+    end then
     raise exception 'Invalid order details' using errcode = '22023';
   end if;
 
@@ -82,10 +85,11 @@ begin
       or (item->>'product_id') !~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
       or (item->>'quantity') is null
       or (item->>'quantity') !~ '^[0-9]{1,6}$'
-      or (item ? 'options' and (
-        jsonb_typeof(item->'options') <> 'array'
-        or jsonb_array_length(item->'options') > 20
-      )) then
+      or (item ? 'options' and case
+        when jsonb_typeof(item->'options') = 'array'
+          then jsonb_array_length(item->'options') > 20
+        else true
+      end) then
       raise exception 'Invalid order item' using errcode = '22023';
     end if;
 
@@ -98,7 +102,8 @@ begin
     from public.products p
     where p.id = (item->>'product_id')::uuid
       and p.business_id = page_row.business_id
-      and p.available = true;
+      and p.available = true
+    for share;
 
     if not found then
       raise exception 'A product is no longer available' using errcode = '22023';
