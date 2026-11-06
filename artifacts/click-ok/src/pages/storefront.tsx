@@ -16,6 +16,8 @@ export function PublicStorefront({params,preview=false}:{params:{slug:string};pr
  if(loading)return <main className="store-state">Cargando vitrina…</main>;
  if(!data)return <main className="store-state"><Store/><h1>{preview?'No se pudo cargar la vista previa':'Esta vitrina no está disponible'}</h1><p>{preview?'Inicia sesión con una cuenta que tenga acceso a este negocio y verifica que la vitrina esté guardada.':'El enlace no existe o el negocio aún no ha publicado su página.'}</p><Link href="/">Volver a CLICK OK</Link></main>;
  const primary=data.page.theme?.primary||'#7656ed', wa=String(data.page.contact?.whatsapp||'').replace(/\D/g,'');
+ const categories=data.categories.filter(c=>c.active!==false).sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
+ const products=data.products.filter(p=>(category==='todos'||p.category_id===category)&&`${p.name} ${p.description||''}`.toLowerCase().includes(search.toLowerCase()));
  return <main className="public-store" style={{'--store-primary':primary} as CSSProperties}>
  <header className="public-store-nav"><a className="public-store-brand" href="#"><b>{data.business.name.slice(0,1)}</b>{data.business.name}</a><a href="#catalogo">Catálogo</a></header>
  <section className="public-store-hero"><span><Globe2 size={14}/> {preview?'VISTA PREVIA PRIVADA':'TIENDA OFICIAL'}</span><h1>{data.page.content?.hero_title||('Bienvenido a '+data.business.name)}</h1><p>{data.page.content?.hero_description||'Conoce nuestros productos y encuentra lo que estás buscando.'}</p><a className="store-primary-button" href="#catalogo">Explorar catálogo</a></section>
