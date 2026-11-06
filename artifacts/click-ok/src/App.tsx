@@ -150,6 +150,7 @@ function Routed() {
     <Route path="/cash">{() => <PrivatePage page="cash" />}</Route>
     <Route path="/settings">{() => <PrivatePage page="settings" />}</Route>
     <Route path="/store-editor" component={StorefrontEditor} />
+    <Route path="/store-preview/:slug">{(params) => <PublicStorefront params={params} preview />}</Route>
     <Route path="/store/:slug">{(params) => <PublicStorefront params={params} />}</Route>
     <Route component={NotFound} />
   </Switch></ErrorBoundary>;
