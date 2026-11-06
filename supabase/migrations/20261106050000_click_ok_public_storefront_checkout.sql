@@ -24,7 +24,7 @@ returns jsonb
 language plpgsql
 security definer
 set search_path = ''
-as $$
+as $function$
 declare
   page_row public.business_public_pages;
   business_is_active boolean;
@@ -163,7 +163,7 @@ begin
     'status', order_row.status
   );
 end;
-$$;
+$function$;
 
 revoke all on function public.create_public_storefront_order(text,text,text,text,text,text,text,jsonb) from public, anon, authenticated;
 grant execute on function public.create_public_storefront_order(text,text,text,text,text,text,text,jsonb) to anon;
