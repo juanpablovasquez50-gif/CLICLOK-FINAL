@@ -85,3 +85,10 @@
 .public-categories::-webkit-scrollbar{display:none}
 .public-categories button{min-height:31px;padding:0 12px;flex:0 0 auto;border:1px solid #e8e3d8;border-radius:20px;background:#fffdf8;color:#77877c;font-size:9px;cursor:pointer}
 .public-categories button.category-active{border-color:var(--store-green);background:var(--store-green);color:white}
+
+.store-product-cta{display:inline-flex;align-items:center;justify-content:space-between;gap:6px;margin-top:6px;padding-top:9px;border-top:1px solid var(--store-line);color:var(--store-primary);font-size:9px;font-weight:700;text-decoration:none}
+.store-product-cta:hover{text-decoration:underline}
+.store-contact-links{display:flex;flex-direction:column;align-items:flex-start;gap:9px}
+.store-contact-links>a:not(.store-primary-button){display:inline-flex;align-items:center;gap:5px;color:var(--store-green);font-size:11px;text-decoration:none}
+.store-contact-links>a:not(.store-primary-button):hover{text-decoration:underline}
+.store-contact-links p{margin:0}
