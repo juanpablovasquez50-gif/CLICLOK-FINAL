@@ -372,7 +372,7 @@ function SettingsPage({ business, email, onLogout }: { business: Business; email
       ]);
       if (!active) return;
       if (typesResult.error || businessResult.error) {
-        setTypeMessage('No pudimos cargar la configuración del sector.');
+        setTypeMessage(`Error al cargar sectores: ${typesResult.error ? `${typesResult.error.code || 'sin código'} — ${typesResult.error.message}` : 'sectores OK'}; negocio: ${businessResult.error ? `${businessResult.error.code || 'sin código'} — ${businessResult.error.message}` : 'OK'}`);
       } else {
         setBusinessTypes(typesResult.data ?? []);
         setBusinessType(businessResult.data?.business_type_id ?? '');
