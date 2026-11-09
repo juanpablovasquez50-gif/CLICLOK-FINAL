@@ -2,7 +2,7 @@ name: CLICK OK - Quality check
 
 on:
   push:
-    branches: [click-ok-produccion]
+    branches: [click-ok-produccion, click-ok-public-storefront]
   pull_request:
     branches: [click-ok-produccion]
   workflow_dispatch:
