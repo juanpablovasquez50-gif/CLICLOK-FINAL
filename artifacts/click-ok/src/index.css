@@ -781,3 +781,10 @@
 .best-product small{font-size:10px;color:#91a0af}
 .analytics-empty{padding:16px;color:#8795a6;font-size:12px}
 @media(max-width:760px){.customer-metrics{grid-template-columns:1fr 1fr}.analytics-grid{grid-template-columns:1fr}.bar-chart{padding-inline:8px}}
+
+
+/* Product modal: keep title and close control readable on the light dialog surface. */
+.modal-backdrop .modal-card .modal-heading h2,
+.modal-backdrop .modal-card .modal-heading h2 * { color: #1f2937 !important; }
+.modal-backdrop .modal-card .modal-heading .icon-button,
+.modal-backdrop .modal-card .modal-heading .icon-button svg { color: #1f2937 !important; stroke: currentColor; }
