@@ -141,3 +141,52 @@
 
 
 .store-cart-fab{position:fixed;right:24px;bottom:24px;z-index:40}.store-cart-fab button{display:flex;align-items:center;gap:10px;border:0;border-radius:999px;padding:14px 20px;background:#171717;color:#fff;font:600 14px inherit;box-shadow:0 12px 36px #0003;cursor:pointer}.store-cart-fab b{display:grid;place-items:center;min-width:23px;height:23px;padding:0 5px;border-radius:50%;background:var(--store-primary);color:#fff}.store-cart-backdrop{position:fixed;inset:0;z-index:60;background:#1119;display:flex;justify-content:flex-end}.store-cart-panel{width:min(100%,480px);height:100%;overflow:auto;background:var(--store-background,#faf8f1);padding:28px;box-shadow:-12px 0 40px #0002}.store-cart-panel>header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px}.store-cart-panel>header small,.store-cart-panel>header h2{display:block;margin:0}.store-cart-panel>header small{font-size:10px;letter-spacing:.14em}.store-cart-panel>header button,.store-cart-quantity button{border:1px solid #ddd;background:transparent;border-radius:50%;width:34px;height:34px;display:grid;place-items:center;cursor:pointer}.store-cart-lines{display:grid;gap:0}.store-cart-lines article{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px 0;border-bottom:1px solid #ddd}.store-cart-lines article b,.store-cart-lines article small{display:block}.store-cart-lines article small{margin-top:5px;opacity:.65}.store-cart-quantity{display:flex;align-items:center;gap:10px}.store-cart-quantity button{width:30px;height:30px}.store-cart-total{display:flex;justify-content:space-between;align-items:center;padding:22px 0;font-size:18px}.store-checkout-start{width:100%;justify-content:center;border:0;cursor:pointer}.store-checkout-form{display:grid;gap:14px}.store-checkout-form label{display:grid;gap:7px;font-size:13px;font-weight:600}.store-checkout-form input,.store-checkout-form textarea,.store-checkout-form select{width:100%;border:1px solid #d8d4cb;border-radius:10px;padding:12px;background:#fff;color:#222;font:inherit}.store-checkout-form textarea{min-height:72px;resize:vertical}.store-checkout-form button:disabled{opacity:.6;cursor:wait}.store-checkout-success{display:grid;gap:14px;padding:28px 0}.store-checkout-success h3,.store-checkout-success p{margin:0}.store-checkout-success>strong{font-size:26px}.store-checkout-success .store-primary-button{display:flex;justify-content:center}.store-cart-panel .store-empty{padding:30px 0}@media(max-width:600px){.store-cart-fab{right:14px;bottom:14px}.store-cart-panel{padding:22px 18px}}
+
+
+/* Compact product cards: prevent a single featured item from stretching across the storefront. */
+main.public-store .public-store-catalog .store-product-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 280px)) !important;
+  align-items: start !important;
+  justify-content: start !important;
+  gap: 14px !important;
+}
+main.public-store .public-store-catalog .store-product {
+  width: 100% !important;
+  max-width: 280px !important;
+  min-width: 0 !important;
+  align-self: start !important;
+}
+main.public-store .public-store-catalog .store-product-art {
+  height: 165px !important;
+  min-height: 0 !important;
+  max-height: 165px !important;
+  aspect-ratio: 16 / 10;
+}
+main.public-store .public-store-catalog .store-product-art > img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+}
+main.public-store .public-store-catalog .store-product-info {
+  min-height: 0 !important;
+  padding: 12px !important;
+}
+@media (max-width: 760px) {
+  main.public-store .public-store-catalog .store-product-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px !important;
+  }
+  main.public-store .public-store-catalog .store-product {
+    max-width: none !important;
+  }
+  main.public-store .public-store-catalog .store-product-art {
+    height: 125px !important;
+    max-height: 125px !important;
+  }
+}
+@media (max-width: 380px) {
+  main.public-store .public-store-catalog .store-product-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+}
